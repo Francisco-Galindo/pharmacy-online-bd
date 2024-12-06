@@ -1,0 +1,3 @@
+--@Autor(es): Francisco Galindo, Andrea Saldaña
+--@Fecha creación: 03/12/2024
+--@Descripción: Script para la creación de tablas externas

@@ -1,0 +1,3 @@
+--@Autor(es): Francisco Galindo, Andrea Saldaña
+--@Fecha creación: 03/12/2024
+--@Descripción: Script con la carga inicial de registros en la base de datos
