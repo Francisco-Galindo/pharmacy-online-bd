@@ -26,11 +26,11 @@ grant create session to rol_invitado;
 
 prompt Creando usuarios
 
-drop user if exists gs_proy_invitado;
+drop user if exists gs_proy_invitado cascade;
 create user gs_proy_invitado identified by gs_proy_invitado quota unlimited on users;
 grant rol_invitado to gs_proy_invitado;
 
-drop user if exists gs_proy_admin;
+drop user if exists gs_proy_admin cascade;
 create user gs_proy_admin identified by gs_proy_admin quota unlimited on users;
 grant rol_admin to gs_proy_admin;
 
