@@ -189,7 +189,14 @@ create table historial_pedido_status (
   historial_pedido_status_id  number(10,0)  not null,
   fecha_status                date          not null,
   status_pedido_id            number(10,0)  not null,
-  pedido_id                   number(10,0)  not null,
+  pedido_id                                 not null,
+  constraint historial_pedido_status_pk primary key (historial_pedido_status_id),
+  constraint historial_pedido_status_status_pedido_id_fk
+    foreign key (status_pedido_id)
+    references status_pedido(status_pedido_id),
+  constraint historial_pedido_status_pedido_id_fk
+    foreign key (pedido_id)
+    references pedido(pedido_id)
 );
 
 create table ubicacion_pedido (
@@ -197,7 +204,11 @@ create table ubicacion_pedido (
   fecha_ubicacion       number(10,0)  not null,
   latitud               number(8,6)   not null,
   longitud              number(9,6)   not null,
-  pedido_id             number(10,0)  not null,
+  pedido_id                           not null,
+  constraint ubicacion_pedido_pk primary key (ubicacion_pedido_id),
+  constraint ubicacion_pedido_pedido_id_fk
+    foreign key (pedido_id)
+    references pedido(pedido_id)
 );
 
 -- Pedidos de medicamentos
@@ -205,10 +216,24 @@ create table ubicacion_pedido (
 create table medicamento_pedido (
   medicamento_pedido_id   number(10,0)  not null,
   unidades                number(4,0)   not null,
-  presentacion_id         number(10,0)  not null,
-  responsable_id          number(10,0)  not null,
-  pedido_id               number(10,0)  not null,
-  farmacia_id             number(10,0)  not null,
+  presentacion_id                       not null,
+  responsable_id                        not null,
+  pedido_id                             not null,
+  farmacia_id                           not null,
+  constraint medicamento_pedido_pk primary key (medicamento_pedido_id),
+  constraint medicamento_pedido_presentacion_id_fk
+    foreign key (presentacion_id)
+    references presentacion(presentacion_id),
+  constraint medicamento_pedido_reponsable_id_fk
+    foreign key (responsable_id)
+    references empleado(empleado_id),
+  constraint medicamento_pedido_pedido_id_fk
+    foreign key (pedido_id)
+    references pedido(pedido_id),
+  -- Algunos pedidos pueden ser surtidos por un almacén!
+  constraint medicamento_pedido_farmacia_id_fk
+    foreign key (farmacia_id)
+    references centro_operaciones(centro_operaciones_id)
 );
 
 -- Operaciones
@@ -217,15 +242,32 @@ create table operacion (
   operacion_id    number(10,0)  not null,
   fecha_operacion date          not null,
   tipo_evento     char(1)       not null,
-  responsable_id  number(10,0)  not null,
-  almacen_id      number(10,0)  not null,
+  responsable_id                not null,
+  almacen_id                    not null,
+  constraint operacion_pk primary key (operacion_id),
+  constraint operacion_tipo_evento_chk check (
+    tipo_evento in ('entrada', 'salida')
+  ),
+  constraint operacion_reponsable_id_fk
+    foreign key (responsable_id)
+    references empleado(empleado_id),
+  constraint operacion_almacen_id_fk
+    foreign key (almacen_id)
+    references almacen(centro_operaciones_id)
 );
 
 create table medicamento_operacion (
   medicamento_operacion_id    number(10,0)  not null,
   unidades                    number(10,0)  not null,
-  presentacion_id             number(10,0)  not null,
-  operacion_id                number(10,0)  not null,
+  presentacion_id                           not null,
+  operacion_id                              not null,
+  constraint medicamento_operacion_pk primary key (medicamento_pedido_id),
+  constraint medicamento_operacion_presentacion_id_fk
+    foreign key (presentacion_id)
+    references presentacion(presentacion_id),
+  constraint medicamento_operacion_operacion_id_fk
+    foreign key (operacion_id)
+    references operacion(operacion_id)
 );
 
 -- Almacenes
@@ -233,6 +275,16 @@ create table medicamento_operacion (
 create table inventario_farmacia (
   inventario_farmacia_id    number(10,0)  not null,
   num_disponibles           number(4,0)   not null,
-  farmacia_id               number(10,0)  not null,
-  presentacion_id           number(10,0)  not null,
+  farmacia_id                             not null,
+  presentacion_id                         not null,
+  constraint inventario_farmacia_pk primary key (inventario_farmacia_id),
+  constraint inventario_farmacia_num_disponibles_chk check (
+    cantidad >= 0
+  ),
+  constraint inventario_farmacia_farmacia_id_fk
+    foreign key (farmacia_id)
+    references farmacia(centro_operaciones_id),
+  constraint inventario_farmacia_presentacion_id_fk
+    foreign key (presentacion_id)
+    references presentacion(presentacion_id)
 );
