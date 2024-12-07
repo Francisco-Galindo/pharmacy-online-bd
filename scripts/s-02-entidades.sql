@@ -27,7 +27,8 @@ create table centro_operaciones (
   es_almacen              boolean       not null,
   es_farmacia             boolean       not null,
   constraint centro_operaciones_pk  primary key(centro_operaciones_id),
-  constraint centro_operaciones_clave_uk  unique(clave)
+  constraint centro_operaciones_clave_uk  unique(clave),
+  constraint centro_operaciones_telefono_uk  unique(telefono),
 );
 
 create table oficina (
@@ -78,12 +79,13 @@ create table farmacia (
 create table sustancia_activa (
   sustancia_activa_id   number(10,0)  not null,
   sustancia             varchar2(128) not null,
-  constraint sustancia_activa_pk primary key(sustancia_activa_id)
+  constraint sustancia_activa_pk primary key(sustancia_activa_id),
+  constraint sustancia_activa_sustancia_uk unique(sustancia)
 );
 
 create table medicamento (
   medicamento_id        number(10,0)  not null,
-  sustancia_activa_id,
+  sustancia_activa_id                 not null,
   descripcion           varchar2(256) not null,
   constraint medicamento_pk primary key(medicamento_id)
   constraint medicamento_sustancia_activa_id_fk
@@ -107,6 +109,9 @@ create table presentacion (
   constraint presentacion_precio_chk check (
     precio > 0
   ),
+  constraint presentacion_medicamento_id_fk
+    foreign key (medicamento_id)
+    references medicamento(medicamento_id)
 );
 
 create table medicamento_nombre (
@@ -119,10 +124,10 @@ create table medicamento_nombre (
     references medicamento(medicamento_id)
 );
 
--- Usuario y dependencias
+-- cliente y dependencias
 
-create table usuario (
-  usuario_id        number(10,0)  not null,
+create table cliente (
+  cliente_id        number(10,0)  not null,
   rfc               char(13)      not null,
   curp              char(18)      not null,
   nombre            varchar2(128) not null,
@@ -131,11 +136,13 @@ create table usuario (
   email             varchar2(256) not null,
   telefono          number(10,0)  not null,
   direccion_envio   varchar2(256) not null,
-  constraint usuario_pk primary key(usuario_id),
-  constraint usuario_rfc_uk unique(rtc),
-  constraint usuario_curp_uk  unique(curp),
+  constraint cliente_pk primary key(cliente_id),
+  constraint cliente_rfc_uk unique(rtc),
+  constraint cliente_curp_uk  unique(curp),
+  constraint cliente_email_uk  unique(email),
+  constraint cliente_telefono_uk  unique(telefono),
   -- Los primeros 10 chars de RFC vienen de la CURP
-  constraint usuario_curp_rfc_chk check (
+  constraint cliente_curp_rfc_chk check (
     substr(curp, 1, 10) == substr(rfc, 1, 10)
   )
 );
@@ -145,11 +152,11 @@ create table tarjeta_credito (
   digitos             number(16,0)  not null,
   mes_exp             number(2,0)   not null,
   ano_exp             number(2,0)   not null,
-  usuario_id                        not null,
+  cliente_id                        not null,
   constraint tarjeta_credito_pk primary key (tarjeta_credito_id),
-  constraint tarjeta_credito_usuario_id_fk
-    foreign key (usuario_id)
-    references usuario(usuario_id),
+  constraint tarjeta_credito_cliente_id_fk
+    foreign key (cliente_id)
+    references cliente(cliente_id),
   constraint tarjeta_credito_digitos_uk unique(digitos)
 );
 
@@ -169,14 +176,14 @@ create table pedido (
   fecha               date          not null,
   fecha_status        date          not null,
   importe             number(10,2)  not null,
-  usuario_id                        not null,
+  cliente_id                        not null,
   responsable_id                    not null,
   status_pedido_id                  not null,
   constraint pedido_pk primary key (pedido_id),
   constraint pedido_folio_uk unique(folio),
-  constraint pedido_usuario_id_fk
-    foreign key (usuario_id)
-    references usuario(usuario_id),
+  constraint pedido_cliente_id_fk
+    foreign key (cliente_id)
+    references cliente(cliente_id),
   constraint pedido_responsable_id_fk
     foreign key (responsable_id)
     references empleado(empleado_id),
@@ -246,7 +253,8 @@ create table operacion (
   almacen_id                    not null,
   constraint operacion_pk primary key (operacion_id),
   constraint operacion_tipo_evento_chk check (
-    tipo_evento in ('entrada', 'salida')
+    -- 'i' para entrada, 'o' para salida
+    tipo_evento in ('i', 'o')
   ),
   constraint operacion_reponsable_id_fk
     foreign key (responsable_id)
