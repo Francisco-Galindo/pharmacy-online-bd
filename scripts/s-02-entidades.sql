@@ -2,19 +2,8 @@
 --@Fecha creación: 03/12/2024
 --@Descripción: Script con el código DDL para crear tablas del caso de estudio.
 
--- El empleado
 
-create table empleado (
-  empleado_id   number(10,0)  not null,
-  rfc           varchar2(13)  not null,
-  nombre        varchar2(128) not null,
-  ap_paterno    varchar2(128) not null,
-  ap_materno    varchar2(128) not null,
-  fecha_ing     date          default on null sysdate,
-);
-
-
--- Centro de operaciones junto a sus subtipos
+-- Centro de operaciones junto a sus subtipos y empleados
 
 create table centro_operaciones (
   centro_operaciones_id   number(10,0)  not null,
@@ -29,6 +18,32 @@ create table centro_operaciones (
   constraint centro_operaciones_pk  primary key(centro_operaciones_id),
   constraint centro_operaciones_clave_uk  unique(clave),
   constraint centro_operaciones_telefono_uk  unique(telefono),
+  -- Las oficinas no pueden ser otro tipo, los otros dos tipos pueden coexistir
+  constraint centro_operaciones_tipo_chk check (
+    (es_oficina = true and es_almacen = false and es_farmacia = false) or
+    (es_almacen = true or es_farmacia = true)
+  )
+);
+
+-- El empleado
+
+create table empleado (
+  empleado_id             number(10,0)  not null,
+  rfc                     varchar2(13)  not null,
+  nombre                  varchar2(128) not null,
+  ap_paterno              varchar2(128) not null,
+  ap_materno              varchar2(128) not null,
+  fecha_ing               date          default on null sysdate,
+  centro_operaciones_id                 not null,
+  sueldo_mensual          number(8,2)   not null,
+  constraint empleado_pk primary key (empleado_id),
+  constraint empleado_rfc_uk unique (rfc),
+  constraint empleado_sueldo_chk check (
+    sueldo >= 5000 -- Muy bajo :(
+  ),
+  constraint empleado_centro_operaciones_id_fk
+    foreign key (empleado_id)
+    references centro_operaciones(centro_operaciones_id)
 );
 
 create table oficina (
@@ -63,7 +78,7 @@ create table farmacia (
   centro_operaciones_id,
   rfc_fiscal              varchar2(13)  not null,
   url_web                 varchar2(128) not null,
-  gerente_id                            not null,
+  gerente_id,
   constraint farmacia_pk primary key(centro_operaciones_id),
   constraint almacen_centro_operaciones_id_fk
     foreign key (centro_operaciones_id)
