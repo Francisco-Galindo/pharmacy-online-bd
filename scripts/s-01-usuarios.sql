@@ -16,11 +16,11 @@ grant
   create table,
   create view,
   create synonym,
-  create sequence,
+  create sequence
 to rol_admin;
 
 drop role if exists rol_invitado;
-create role rol_admin;
+create role rol_invitado;
 grant create session to rol_invitado;
 
 
@@ -34,4 +34,5 @@ drop user if exists gs_proy_admin cascade;
 create user gs_proy_admin identified by gs_proy_admin quota unlimited on users;
 grant rol_admin to gs_proy_admin;
 
-disconnect
+-- disconnect
+connect gs_proy_admin/gs_proy_admin@fgmbd_s1

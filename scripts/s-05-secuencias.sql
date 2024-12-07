@@ -17,7 +17,8 @@
 create sequence empleado_seq
   start with 16
   increment by 1
-  nocycle;
+  nocycle
+  nocache;
 
 /*
  * No se espera que existan demasiados centros de operaciones (menos de 100,
@@ -29,27 +30,31 @@ create sequence centro_operaciones_seq
   nocycle
   nocache;
 
-create secuence sustancia_activa_seq
+create sequence sustancia_activa_seq
   start with 16
   increment by 1
-  nocycle;
+  nocycle
+  nocache;
 
-create secuence medicamento_seq
+create sequence medicamento_seq
   start with 16
   increment by 1
-  nocycle;
+  nocycle
+  nocache;
 
-create secuence presentacion_seq
+create sequence presentacion_seq
   start with 16
   increment by 1
-  nocycle;
+  nocycle
+  nocache;
 
-create secuence medicamento_nombre_seq
+create sequence medicamento_nombre_seq
   start with 16
   increment by 1
-  nocycle;
+  nocycle
+  nocache;
 
-create secuence usuario_seq
+create sequence usuario_seq
   start with 16
   increment by 1
   nocycle;
@@ -108,7 +113,7 @@ create sequence medicamento_operacion_seq
   nocycle
   cache 512;
 
-create table inventario_farmacia_seq
+create sequence inventario_farmacia_seq
   start with 256
   increment by 1
   nocycle
