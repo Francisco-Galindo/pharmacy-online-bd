@@ -6,18 +6,18 @@
 prompt Creando directorio carga_datos_dir
 connect sys/&p_sys_password@&p_pdb as sysdba
 
-create or replace directory carga_datos_dir as '/unam/bd/proyecto/scripts/carga-de-datos';
+create or replace directory carga_datos_dir as './carga-de-datos';
 
 grant read, write on directory carga_datos_dir to gs_proy_admin;
 
-!chmod 777 -R /unam/bd/proyecto/scripts/carga-de-datos
+!chmod 777 -R &p_root_dir/scripts/carga-de-datos
 
 
 prompt Conectando como usuario gs_proy_admin
 connect gs_proy_admin/gs_proy_admin@&p_pdb
 
 prompt Insertando datos que se crearon directamente
-@/unam/bd/proyecto/scripts/carga-de-datos/medicamento_y_relacionados.sql
+@&p_root_dir/scripts/carga-de-datos/medicamento_y_relacionados.sql
 
 prompt Creando tablas externas
 
