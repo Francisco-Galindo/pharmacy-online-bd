@@ -3,8 +3,8 @@
 --@Descripción: Script para la creación de los usuarios utilizados en el proyecto
 
 
-prompt Conectando a la pdb fgmbd_s1
-connect sys/system1@fgmbd_s1 as sysdba
+prompt Conectando a la pdb
+connect sys/&p_sys_password@&p_pdb as sysdba
 
 
 prompt Creando roles
@@ -35,6 +35,3 @@ grant rol_invitado to gs_proy_invitado;
 drop user if exists gs_proy_admin cascade;
 create user gs_proy_admin identified by gs_proy_admin quota unlimited on users;
 grant rol_admin to gs_proy_admin;
-
--- disconnect
-connect gs_proy_admin/gs_proy_admin@fgmbd_s1

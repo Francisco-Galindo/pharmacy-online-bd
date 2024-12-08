@@ -19,14 +19,14 @@ guardarlo en la base, adicionalmente.
  */
 
 prompt Creando directorio cargamento_dir
-connect sys/system1@fgmbd_s1 as sysdba
+connect sys/&p_sys_password@&p_pdb as sysdba
 create or replace directory cargamento_dir as '/unam/bd/proyecto-final/externas';
 
 grant read, write on directory cargamento_dir to gs_proy_admin;
 
 
 prompt Conectando como usuario gs_proy_admin para crear la tabla externa
-connect gs_proy_admin/gs_proy_admin@fgmbd_s1
+connect gs_proy_admin/gs_proy_admin@&p_pdb
 
 prompt Creando tabla externa
 create table cargamento_ext (

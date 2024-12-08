@@ -13,6 +13,7 @@
  */
 
 
+connect gs_proy_admin/gs_proy_admin@&p_pdb
 
 create sequence empleado_seq
   start with 1

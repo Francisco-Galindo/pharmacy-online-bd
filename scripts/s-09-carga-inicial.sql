@@ -4,7 +4,8 @@
 
 
 prompt Creando directorio carga_datos_dir
-connect sys/system1@fgmbd_s1 as sysdba
+connect sys/&p_sys_password@&p_pdb as sysdba
+
 create or replace directory carga_datos_dir as '/unam/bd/proyecto/scripts/carga-de-datos';
 
 grant read, write on directory carga_datos_dir to gs_proy_admin;
@@ -13,7 +14,7 @@ grant read, write on directory carga_datos_dir to gs_proy_admin;
 
 
 prompt Conectando como usuario gs_proy_admin
-connect gs_proy_admin/gs_proy_admin@fgmbd_s1
+connect gs_proy_admin/gs_proy_admin@&p_pdb
 
 prompt Insertando datos que se crearon directamente
 @/unam/bd/proyecto/scripts/carga-de-datos/medicamento_y_relacionados.sql
@@ -435,10 +436,9 @@ organization external (
 
 
 
-
---------------------------------------------------------------------------------
-
---------------------------------------------------------------------------------
+/*
+ * Haciendo merge de las tablas temporales con las tablas de trabajo
+ */
 
 merge into centro_operaciones a using centro_operaciones_ext b on
   (false)
@@ -449,6 +449,7 @@ when not matched then insert
   (b.clave, b.direccion, b.latitud, b.longitud, b.telefono, b.es_oficina,
     b.es_almacen, b.es_farmacia);
 
+drop table centro_operaciones_ext;
 merge into empleado a using empleado_ext b on
   (false)
 when not matched then insert
@@ -457,6 +458,7 @@ when not matched then insert
   values
   (b.nombre, b.ap_paterno, b.ap_materno, b.rfc, b.fecha_ing, b.sueldo_mensual,
     b.centro_operaciones_id);
+drop table empleado_ext;
 
 merge into oficina a using oficina_ext b on
   (false)
@@ -464,6 +466,7 @@ when not matched then insert
   (a.centro_operaciones_id, a.telefono_cc, a.nombre, a.clave_presupuestal)
   values
   (b.centro_operaciones_id, b.telefono_cc, b.nombre, b.clave_presupuestal);
+drop table oficina_ext;
 
 merge into almacen a using almacen_ext b on
   (false)
@@ -471,6 +474,7 @@ when not matched then insert
   (a.centro_operaciones_id, a.tipo_almacen, a.almacen_contingencia_id)
   values
   (b.centro_operaciones_id, b.tipo_almacen, b.almacen_contingencia_id);
+drop table almacen_ext;
 
 merge into farmacia a using farmacia_ext b on
   (false)
@@ -478,6 +482,7 @@ when not matched then insert
   (a.centro_operaciones_id, a.rfc_fiscal, a.url_web, a.gerente_id)
   values
   (b.centro_operaciones_id, b.rfc_fiscal, b.url_web, b.gerente_id);
+drop table farmacia_ext;
 
 merge into cliente a using cliente_ext b on
   (false)
@@ -487,6 +492,7 @@ when not matched then insert
   values
   (b.nombre, b.ap_paterno, b.ap_materno, b.email, b.curp, b.rfc, b.hash_pass,
     b.telefono, b.direccion_envio);
+drop table cliente_ext;
 
 merge into tarjeta_credito a using tarjeta_credito_ext b on
   (false)
@@ -494,6 +500,7 @@ when not matched then insert
   (a.digitos, a.mes_exp, a.ano_exp, a.cliente_id)
   values
   (b.digitos, b.mes_exp, b.ano_exp, b.cliente_id);
+drop table tarjeta_credito_ext;
 
 merge into status_pedido a using status_pedido_ext b on
   (false)
@@ -501,6 +508,7 @@ when not matched then insert
   (a.clave, a.descripcion)
   values
   (b.clave, b.descripcion);
+drop table status_pedido_ext;
 
 merge into pedido a using pedido_ext b on
   (false)
@@ -508,6 +516,7 @@ when not matched then insert
   (a.folio, a.fecha, a.fecha_status, a.importe, a.cliente_id, a.responsable_id, a.status_pedido_id)
   values
   (b.folio, b.fecha, b.fecha_status, b.importe, b.cliente_id, b.responsable_id, b.status_pedido_id);
+drop table pedido_ext;
 
 merge into ubicacion_pedido a using ubicacion_pedido_ext b on
   (false)
@@ -515,6 +524,7 @@ when not matched then insert
   (a.fecha_ubicacion, a.latitud, a.longitud, a.pedido_id)
   values
   (b.fecha_ubicacion, b.latitud, b.longitud, b.pedido_id);
+drop table ubicacion_pedido_ext;
 
 merge into medicamento_pedido a using medicamento_pedido_ext b on
   (false)
@@ -522,6 +532,7 @@ when not matched then insert
   (a.unidades, a.presentacion_id, a.responsable_id, a.pedido_id, a.farmacia_id)
   values
   (b.unidades, b.presentacion_id, b.responsable_id, b.pedido_id, b.farmacia_id);
+drop table medicamento_pedido_ext;
 
 merge into operacion a using operacion_ext b on
   (false)
@@ -529,6 +540,7 @@ when not matched then insert
   (a.fecha_operacion, a.tipo_evento, a.responsable_id, a.almacen_id)
   values
   (b.fecha_operacion, b.tipo_evento, b.responsable_id, b.almacen_id);
+drop table operacion_ext;
 
 merge into medicamento_operacion a using medicamento_operacion_ext b on
   (false)
@@ -536,6 +548,7 @@ when not matched then insert
   (a.unidades, a.presentacion_id, a.operacion_id)
   values
   (b.unidades, b.presentacion_id, b.operacion_id);
+drop table medicamento_operacion_ext;
 
 merge into inventario_farmacia a using inventario_farmacia_ext b on
   (false)
@@ -543,8 +556,10 @@ when not matched then insert
   (a.num_disponibles, a.farmacia_id, a.presentacion_id)
   values
   (b.num_disponibles, b.farmacia_id, b.presentacion_id);
+drop table inventario_farmacia_ext;
 
 commit;
+
 
 set serveroutput on
 

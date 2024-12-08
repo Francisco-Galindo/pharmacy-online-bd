@@ -3,7 +3,7 @@
 --@Descripción: Script con la definición de un trigger para cumplir con las
 --              reglas de negocio referentes a los status de un pedido.
 
-connect gs_proy_admin/gs_proy_admin@fgmbd_s1
+connect gs_proy_admin/gs_proy_admin@&p_pdb
 
 create or replace trigger tr_checa_estados_pedido
   before

@@ -2,6 +2,7 @@
 --@Fecha creación: 03/12/2024
 --@Descripción: Script con el código DDL para crear tablas del caso de estudio.
 
+connect gs_proy_admin/gs_proy_admin@&p_pdb
 
 -- Centro de operaciones junto a sus subtipos y empleados
 
