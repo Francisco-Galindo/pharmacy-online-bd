@@ -8,5 +8,5 @@ define p_root_dir='/unam/bd/pharmacy-online-bd'
 -- @./s-03-tablas-temporales.sql
 -- @./s-04-tablas-externas.sql
 @&p_root_dir/scripts/s-06-indices.sql
-@&p_root_dir/scripts/s-11-tr-checa-estados-pedido.sql
 @&p_root_dir/scripts/s-09-carga-inicial.sql
+@&p_root_dir/scripts/s-11-tr-checa-estados-pedido.sql

@@ -597,43 +597,47 @@ commit;
 
 set serveroutput on
 
--- prompt Poblando historico de status de pedidos...
+declare
+  cursor cur_pedidos is select * from pedido;
 
-/*
- * Como no encontramos a tiempo una manera buena y rápida de poblar el
- * historico con valores que tuvieran sentido, lo hicimos con fuerza bruta. Nos
- * estamos apoyando en un trigger que garantiza el cumplimiento de las reglas
- * de negocio para que de muchos valores aleatorios, sólo se acepten nuevos
- * registros válidos.
- */
--- declare
---   var_pedido_id         number(10,0);
---   var_status_pedido_id  number(10,0);
---   var_fecha_status      date;
--- begin
---   -- LOL
---   for i in 1..20000 loop
---     begin
---
---       select dbms_random.value(1,1000) into var_pedido_id;
---       select dbms_random.value(1,5) into var_status_pedido_id;
---       select timestamp '2024-12-01 08:00:00' +
---          dbms_random.value * (timestamp '2024-12-07 17:59:59' -
---                      timestamp '2024-12-01 08:00:00') into var_fecha_status;
---
---       update pedido
---         set status_pedido_id = var_status_pedido_id,
---           fecha_status = var_fecha_status
---         where pedido_id = var_pedido_id;
---
---     exception
---       when others then
---         continue;
---     end;
---   end loop;
--- end;
--- /
---
--- prompt Se ha poblado la tabla historico_status_pedido
+  cursor cur_ultimos_status is
+  select
+    hps.pedido_id,
+    hps.fecha_status,
+    hps.status_pedido_id
+  from
+    historial_pedido_status hps
+  join (
+    select
+      pedido_id,
+      max(fecha_status) as fecha_status
+    from
+      historial_pedido_status hps
+    group by
+      pedido_id
+  ) q1
+  on
+    q1.pedido_id = hps.pedido_id
+  where
+    hps.fecha_status = q1.fecha_status;
+
+begin
+
+  -- Agregando el status inicial al historial, con la fecha correcta
+  for r in cur_pedidos loop
+    insert into historial_pedido_status
+      (fecha_status, status_pedido_id, pedido_id)
+      values (r.fecha_status, r.status_pedido_id, r.pedido_id);
+  end loop;
+
+  -- El status y fecha_status de los pedidos se pone con el valor más nuevo del
+  -- historial
+  for r in cur_ultimos_status loop
+    update pedido
+      set fecha_status = r.fecha_status, status_pedido_id = r.status_pedido_id
+      where pedido_id = r.pedido_id;
+  end loop;
+end;
+/
 
 commit;
