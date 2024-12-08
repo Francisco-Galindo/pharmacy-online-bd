@@ -6,7 +6,7 @@
 prompt Creando directorio carga_datos_dir
 connect sys/&p_sys_password@&p_pdb as sysdba
 
-create or replace directory carga_datos_dir as './carga-de-datos';
+create or replace directory carga_datos_dir as '/unam/bd/pharmacy-online-bd/scripts/carga-de-datos';
 
 grant read, write on directory carga_datos_dir to gs_proy_admin;
 
