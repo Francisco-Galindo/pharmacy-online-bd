@@ -1,26 +1,25 @@
-clave,direccion,latitud,longitud,telefono,es_oficina,es_almacen,es_farmacia
-HVV6894,"Av. Paseo de la Reforma 101, Cuauhtémoc, 06500 Ciudad de México, CDMX",43.0349,-83.6887,5594081396,1,0,0
-KXD7683,"Insurgentes Sur 3000, Ciudad Universitaria, 04510 Ciudad de México, CDMX",30.392,-91.0892,5535452540,1,0,0
-BRL5425,"Av. Juárez 100, Centro Histórico, 06050 Ciudad de México, CDMX",31.6948,-106.3,5570627556,1,0,0
-CDB4387,"Calle de Tacuba 120, Centro Histórico, 06000 Ciudad de México, CDMX",45.0632,-93.3811,5555464989,1,0,0
-RBB4203,"Av. de los Insurgentes 400, Hipódromo Condesa, 06100 Ciudad de México, CDMX",38.8933,-77.0146,5540006328,1,0,0
-AUW4736,"Calle Liverpool 155, Juárez, 06600 Ciudad de México, CDMX",39.1668,-84.5382,5578626792,0,1,0
-FAI4222,"Calle Varsovia 10, Juárez, 06600 Ciudad de México, CDMX",27.9246,-80.5235,5541776862,0,1,0
-LRR4177,"Av. Revolución 1500, Guadalupe Inn, 01020 Ciudad de México, CDMX",39.1042,-94.4923,5589331918,0,1,0
-BMY3733,"Calz. de Tlalpan 1800, Churubusco, 04200 Ciudad de México, CDMX",28.5456,-81.3782,5568954569,0,1,1
-LEF4211,"Av. Universidad 1001, Xoco, 03330 Ciudad de México, CDMX",38.8247,-104.562,5521778801,0,1,1
-CDZ8320,"Calle Génova 85, Juárez, 06600 Ciudad de México, CDMX",35.4015,-101.8951,5525558705,0,0,1
-KHM5185,"Av. Universidad 500, Santa Catarina, 04000 Ciudad de México, CDMX",31.8693,-102.0317,5561051836,0,0,1
-GMJ2504,"Calle de Durango 280, Roma Norte, 06700 Ciudad de México, CDMX",42.3253,-71.1122,5593286376,0,0,1
-HAX2895,"Av. División del Norte 3001, Del Valle Centro, 03100 Ciudad de México, CDMX",33.7866,-118.2987,5505720133,0,0,1
-VGZ8110,"Calle de Chihuahua 220, Roma Norte, 06700 Ciudad de México, CDMX",39.6255,-104.7874,5502150381,0,0,1
-FNT2798,"Av. Baja California 100, Roma Sur, 06760 Ciudad de México, CDMX",39.441,-84.5757,5593127518,0,0,1
-FPC5912,"Av. Insurgentes Sur 1500, Del Valle, 03100 Ciudad de México, CDMX",34.006,-80.9708,5555971686,0,0,1
-MWS0991,"Calle Bolivar 150, Centro, 06000 Ciudad de México, CDMX",35.599,-97.6251,5587822694,0,0,1
-TCG4832,"Calle San Ildefonso 40, Centro, 06000 Ciudad de México, CDMX",40.6681,-111.9083,5595640839,0,0,1
-PZV9273,"Av. Centenario 160, Coyoacán, 04000 Ciudad de México, CDMX",45.0159,-93.4719,5562774803,0,0,1
-EZE7179,"Callejón del Siglo XV 100, San Ángel, 01000 Ciudad de México, CDMX",29.4106,-98.4128,5506997610,0,0,1
-XXP3083,"Calle de Colima 364, Roma Norte, 06700 Ciudad de México, CDMX",44.5463,-88.1021,5510390669,0,0,1
-CBW1922,"Calle de Córdoba 150, Roma Norte, 06700 Ciudad de México, CDMX",33.9228,-117.4867,5589588792,0,0,1
-OXQ0748,"Av. de los Constituyentes 700, América, 01210 Ciudad de México, CDMX",33.7866,-118.2987,5590719303,0,0,1
-BXL7974,"Calle Amsterdam 180, Hipódromo, 06100 Ciudad de México, CDMX",32.8147,-96.7877,5556785629,0,0,1
+HVV689,"Av. Paseo de la Reforma 101, Cuauhtémoc, 06500 Ciudad de México, CDMX",43.0349,-83.6887,5594081396,1,0,0
+KXD768,"Insurgentes Sur 3000, Ciudad Universitaria, 04510 Ciudad de México, CDMX",30.392,-91.0892,5535452540,1,0,0
+BRL542,"Av. Juárez 100, Centro Histórico, 06050 Ciudad de México, CDMX",31.6948,-106.3,5570627556,1,0,0
+CDB438,"Calle de Tacuba 120, Centro Histórico, 06000 Ciudad de México, CDMX",45.0632,-93.3811,5555464989,1,0,0
+RBB420,"Av. de los Insurgentes 400, Hipódromo Condesa, 06100 Ciudad de México, CDMX",38.8933,-77.0146,5540006328,1,0,0
+AUW473,"Calle Liverpool 155, Juárez, 06600 Ciudad de México, CDMX",39.1668,-84.5382,5578626792,0,1,0
+FAI422,"Calle Varsovia 10, Juárez, 06600 Ciudad de México, CDMX",27.9246,-80.5235,5541776862,0,1,0
+LRR417,"Av. Revolución 1500, Guadalupe Inn, 01020 Ciudad de México, CDMX",39.1042,-94.4923,5589331918,0,1,0
+BMY373,"Calz. de Tlalpan 1800, Churubusco, 04200 Ciudad de México, CDMX",28.5456,-81.3782,5568954569,0,1,1
+LEF421,"Av. Universidad 1001, Xoco, 03330 Ciudad de México, CDMX",38.8247,-104.562,5521778801,0,1,1
+CDZ832,"Calle Génova 85, Juárez, 06600 Ciudad de México, CDMX",35.4015,-101.8951,5525558705,0,0,1
+KHM518,"Av. Universidad 500, Santa Catarina, 04000 Ciudad de México, CDMX",31.8693,-102.0317,5561051836,0,0,1
+GMJ250,"Calle de Durango 280, Roma Norte, 06700 Ciudad de México, CDMX",42.3253,-71.1122,5593286376,0,0,1
+HAX289,"Av. División del Norte 3001, Del Valle Centro, 03100 Ciudad de México, CDMX",33.7866,-118.2987,5505720133,0,0,1
+VGZ811,"Calle de Chihuahua 220, Roma Norte, 06700 Ciudad de México, CDMX",39.6255,-104.7874,5502150381,0,0,1
+FNT279,"Av. Baja California 100, Roma Sur, 06760 Ciudad de México, CDMX",39.441,-84.5757,5593127518,0,0,1
+FPC591,"Av. Insurgentes Sur 1500, Del Valle, 03100 Ciudad de México, CDMX",34.006,-80.9708,5555971686,0,0,1
+MWS099,"Calle Bolivar 150, Centro, 06000 Ciudad de México, CDMX",35.599,-97.6251,5587822694,0,0,1
+TCG483,"Calle San Ildefonso 40, Centro, 06000 Ciudad de México, CDMX",40.6681,-111.9083,5595640839,0,0,1
+PZV927,"Av. Centenario 160, Coyoacán, 04000 Ciudad de México, CDMX",45.0159,-93.4719,5562774803,0,0,1
+EZE717,"Callejón del Siglo XV 100, San Ángel, 01000 Ciudad de México, CDMX",29.4106,-98.4128,5506997610,0,0,1
+XXP308,"Calle de Colima 364, Roma Norte, 06700 Ciudad de México, CDMX",44.5463,-88.1021,5510390669,0,0,1
+CBW192,"Calle de Córdoba 150, Roma Norte, 06700 Ciudad de México, CDMX",33.9228,-117.4867,5589588792,0,0,1
+OXQ074,"Av. de los Constituyentes 700, América, 01210 Ciudad de México, CDMX",33.7866,-118.2987,5590719303,0,0,1
+BXL797,"Calle Amsterdam 180, Hipódromo, 06100 Ciudad de México, CDMX",32.8147,-96.7877,5556785629,0,0,1
