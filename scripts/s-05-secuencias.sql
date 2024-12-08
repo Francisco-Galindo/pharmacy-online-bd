@@ -15,7 +15,7 @@
 
 
 create sequence empleado_seq
-  start with 16
+  start with 1
   increment by 1
   nocycle
   nocache;
@@ -25,44 +25,52 @@ create sequence empleado_seq
  * por ejemplo), no es necesario un caché
  */
 create sequence centro_operaciones_seq
-  start with 8
+  start with 1
   increment by 1
   nocycle
   nocache;
 
 create sequence sustancia_activa_seq
-  start with 16
+  start with 1
   increment by 1
   nocycle
   nocache;
 
 create sequence medicamento_seq
-  start with 16
+  start with 1
   increment by 1
   nocycle
   nocache;
 
 create sequence presentacion_seq
-  start with 16
+  start with 1
   increment by 1
   nocycle
   nocache;
 
 create sequence medicamento_nombre_seq
-  start with 16
+  start with 1
   increment by 1
   nocycle
   nocache;
 
-create sequence usuario_seq
-  start with 16
+create sequence cliente_seq
+  start with 1
   increment by 1
-  nocycle;
+  nocycle
+  nocache;
 
 create sequence tarjeta_credito_seq
-  start with 16
+  start with 1
   increment by 1
-  nocycle;
+  nocycle
+  nocache;
+
+create sequence status_pedido_seq
+  start with 1
+  increment by 1
+  nocycle
+  nocache;
 
 /*
  * Como se van a estar creando pedidos constantemente, se utiliza un caché. El
@@ -72,25 +80,25 @@ create sequence tarjeta_credito_seq
  */
 
 create sequence pedido_seq
-  start with 32
+  start with 1
   increment by 1
   nocycle
   cache 256;
 
-create sequence historial_pedido_seq
-  start with 128
+create sequence historial_pedido_status_seq
+  start with 1
   increment by 1
   nocycle
   cache 1024;
 
 create sequence ubicacion_pedido_seq
-  start with 32
+  start with 1
   increment by 1
   nocycle
   cache 1024;
 
 create sequence medicamento_pedido_seq
-  start with 128
+  start with 1
   increment by 1
   nocycle
   cache 1024;
@@ -102,19 +110,19 @@ create sequence medicamento_pedido_seq
  */
 
 create sequence operacion_seq
-  start with 32
+  start with 1
   increment by 1
   nocycle
   cache 256;
 
 create sequence medicamento_operacion_seq
-  start with 256
+  start with 1
   increment by 1
   nocycle
   cache 512;
 
 create sequence inventario_farmacia_seq
-  start with 256
+  start with 1
   increment by 1
   nocycle
   cache 512;

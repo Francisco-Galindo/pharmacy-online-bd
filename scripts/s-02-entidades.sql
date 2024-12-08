@@ -6,7 +6,7 @@
 -- Centro de operaciones junto a sus subtipos y empleados
 
 create table centro_operaciones (
-  centro_operaciones_id   number(10,0)  not null,
+  centro_operaciones_id   number(10,0)  default on null centro_operaciones_seq.nextval,
   clave                   char(6)       not null,
   direccion               varchar2(128) not null,
   latitud                 number(8,6)   not null,
@@ -28,14 +28,14 @@ create table centro_operaciones (
 -- El empleado
 
 create table empleado (
-  empleado_id             number(10,0)  not null,
+  empleado_id             number(10,0)  default on null empleado_seq.nextval,
   rfc                     varchar2(13)  not null,
   nombre                  varchar2(128) not null,
   ap_paterno              varchar2(128) not null,
   ap_materno              varchar2(128) not null,
   fecha_ing               date          default on null sysdate,
-  centro_operaciones_id   number(10,0)  not null,
   sueldo_mensual          number(8,2)   not null,
+  centro_operaciones_id   number(10,0)  not null,
   constraint empleado_pk primary key (empleado_id),
   -- Los valores únicos se checan con índices, en este caso se hará aquí para
   -- cumplir con el punto establecido
@@ -44,7 +44,7 @@ create table empleado (
     sueldo_mensual >= 5000 -- Muy bajo :(
   ),
   constraint empleado_centro_operaciones_id_fk
-    foreign key (empleado_id)
+    foreign key (centro_operaciones_id)
     references centro_operaciones(centro_operaciones_id)
 );
 
@@ -62,7 +62,7 @@ create table oficina (
 create table almacen (
   centro_operaciones_id,
   tipo_almacen            char(1)       not null,
-  documento               blob          not null,
+  documento               blob          default on null empty_blob(),
   almacen_contingencia_id,
   constraint almacen_pk primary key(centro_operaciones_id),
   constraint almacen_centro_operaciones_id_fk
@@ -94,14 +94,14 @@ create table farmacia (
 -- Presentacion de medicamento junto con sus dependencias
 
 create table sustancia_activa (
-  sustancia_activa_id   number(10,0)  not null,
+  sustancia_activa_id   number(10,0)  default on null sustancia_activa_seq.nextval,
   sustancia             varchar2(128) not null,
   constraint sustancia_activa_pk primary key(sustancia_activa_id)
   -- constraint sustancia_activa_sustancia_uk unique(sustancia)
 );
 
 create table medicamento (
-  medicamento_id        number(10,0)  not null,
+  medicamento_id        number(10,0)  default on null medicamento_seq.nextval,
   sustancia_activa_id                 not null,
   descripcion           varchar2(256) not null,
   constraint medicamento_pk primary key(medicamento_id),
@@ -111,7 +111,7 @@ create table medicamento (
 );
 
 create table presentacion (
-  presentacion_id   number(10,0)  not null,
+  presentacion_id   number(10,0)  default on null presentacion_seq.nextval,
   cantidad          number(3,0)   not null,
   unidad            varchar2(10)  default on null 'unidades',
   precio            number(8,2)   not null,
@@ -132,7 +132,7 @@ create table presentacion (
 );
 
 create table medicamento_nombre (
-  medicamento_nombre_id   number(10,0)  not null,
+  medicamento_nombre_id   number(10,0)  default on null medicamento_nombre_seq.nextval,
   nombre                  varchar2(128) not null,
   medicamento_id          number(10,0)  not null,
   constraint medicamento_nombre_pk primary key(medicamento_nombre_id),
@@ -144,7 +144,7 @@ create table medicamento_nombre (
 -- cliente y dependencias
 
 create table cliente (
-  cliente_id        number(10,0)  not null,
+  cliente_id        number(10,0)  default on null cliente_seq.nextval,
   rfc               char(13)      not null,
   curp              char(18)      not null,
   nombre            varchar2(128) not null,
@@ -153,6 +153,7 @@ create table cliente (
   email             varchar2(256) not null,
   telefono          number(10,0)  not null,
   direccion_envio   varchar2(256) not null,
+  hash_pass         char(60) not null,
   constraint cliente_pk primary key(cliente_id),
   -- constraint cliente_rfc_uk unique(rfc),
   -- constraint cliente_curp_uk  unique(curp),
@@ -165,12 +166,11 @@ create table cliente (
 );
 
 create table tarjeta_credito (
-  tarjeta_credito_id  number(10,0)  not null,
-  digitos             number(16,0)  not null,
+  cliente_id,
+  digitos             number(20,0)  not null,
   mes_exp             number(2,0)   not null,
   ano_exp             number(2,0)   not null,
-  cliente_id                        not null,
-  constraint tarjeta_credito_pk primary key (tarjeta_credito_id),
+  constraint tarjeta_credito_pk primary key (cliente_id),
   constraint tarjeta_credito_cliente_id_fk
     foreign key (cliente_id)
     references cliente(cliente_id)
@@ -180,15 +180,15 @@ create table tarjeta_credito (
 -- Pedido y relacionados
 
 create table status_pedido (
-  status_pedido_id    number(10,0)  not null,
-  clave               varchar2(32)  not null,
+  status_pedido_id    number(10,0)  default on null status_pedido_seq.nextval,
+  clave               varchar2(16)  not null,
   descripcion         varchar2(128) not null,
   constraint status_pedido_pk primary key(status_pedido_id)
   -- constraint status_pedido_clave_uk unique(clave)
 );
 
 create table pedido (
-  pedido_id           number(10,0)  not null,
+  pedido_id           number(10,0)  default on null pedido_seq.nextval,
   folio               char(13)      not null,
   fecha               date          not null,
   fecha_status        date          not null,
@@ -210,7 +210,7 @@ create table pedido (
 );
 
 create table historial_pedido_status (
-  historial_pedido_status_id  number(10,0)  not null,
+  historial_pedido_status_id  number(10,0)  default on null historial_pedido_status_seq.nextval,
   fecha_status                date          not null,
   status_pedido_id            number(10,0)  not null,
   pedido_id                                 not null,
@@ -224,8 +224,8 @@ create table historial_pedido_status (
 );
 
 create table ubicacion_pedido (
-  ubicacion_pedido_id   number(10,0)  not null,
-  fecha_ubicacion       number(10,0)  not null,
+  ubicacion_pedido_id   number(10,0)          default on null ubicacion_pedido_seq.nextval,
+  fecha_ubicacion       date          not null,
   latitud               number(8,6)   not null,
   longitud              number(9,6)   not null,
   pedido_id                           not null,
@@ -238,7 +238,7 @@ create table ubicacion_pedido (
 -- Pedidos de medicamentos
 
 create table medicamento_pedido (
-  medicamento_pedido_id   number(10,0)  not null,
+  medicamento_pedido_id   number(10,0)  default on null medicamento_pedido_seq.nextval,
   unidades                number(4,0)   not null,
   presentacion_id                       not null,
   responsable_id                        not null,
@@ -263,7 +263,7 @@ create table medicamento_pedido (
 -- Operaciones
 
 create table operacion (
-  operacion_id    number(10,0)  not null,
+  operacion_id    number(10,0)  default on null operacion_seq.nextval,
   fecha_operacion date          not null,
   tipo_evento     char(1)       not null,
   responsable_id                not null,
@@ -282,7 +282,7 @@ create table operacion (
 );
 
 create table medicamento_operacion (
-  medicamento_operacion_id    number(10,0)  not null,
+  medicamento_operacion_id    number(10,0)  default on null medicamento_operacion_seq.nextval,
   unidades                    number(10,0)  not null,
   presentacion_id                           not null,
   operacion_id                              not null,
@@ -301,7 +301,7 @@ create table medicamento_operacion (
 -- Almacenes
 
 create table inventario_farmacia (
-  inventario_farmacia_id    number(10,0)  not null,
+  inventario_farmacia_id    number(10,0)  default on null inventario_farmacia_seq.nextval,
   num_disponibles           number(4,0)   not null,
   farmacia_id                             not null,
   presentacion_id                         not null,
