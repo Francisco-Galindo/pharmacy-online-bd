@@ -4,4 +4,5 @@
 -- @./s-03-tablas-temporales.sql
 -- @./s-04-tablas-externas.sql
 @/unam/bd/proyecto/scripts/s-06-indices.sql
+@/unam/bd/proyecto/scripts/s-11-tr-checa-estados-pedido.sql
 @/unam/bd/proyecto/scripts/s-09-carga-inicial.sql

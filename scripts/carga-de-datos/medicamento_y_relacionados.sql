@@ -298,3 +298,5 @@ INSERT INTO presentacion (presentacion_id, cantidad, unidad, precio, medicamento
 INSERT INTO presentacion (presentacion_id, cantidad, unidad, precio, medicamento_id) VALUES (59, 20, 'unidades', 19.00, 19);
 -- Presentación 60
 INSERT INTO presentacion (presentacion_id, cantidad, unidad, precio, medicamento_id) VALUES (60, 30, 'ml', 25.00, 20);
+
+update presentacion set precio = 20 * precio - 0.01;

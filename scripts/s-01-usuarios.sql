@@ -16,7 +16,9 @@ grant
   create table,
   create view,
   create synonym,
-  create sequence
+  create sequence,
+  create procedure,
+  create trigger
 to rol_admin;
 
 drop role if exists rol_invitado;
