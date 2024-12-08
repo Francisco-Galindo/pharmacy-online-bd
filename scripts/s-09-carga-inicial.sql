@@ -267,6 +267,32 @@ organization external (
 );
 
 
+create table historial_pedido_status_ext (
+  fecha_status                date,
+  status_pedido_id            number(10,0),
+  pedido_id                   number(10,0)
+)
+organization external (
+  type oracle_loader
+  default directory carga_datos_dir
+  access parameters (
+    records delimited by newline
+    badfile carga_datos_dir:'historial_pedido_status_ext_bad.log'
+    logfile carga_datos_dir:'historial_pedido_status_ext.log'
+    fields terminated by ','
+    optionally enclosed by '"'
+    lrtrim
+    missing field values are null
+    (
+      fecha_status date mask "yyyy-mm-dd hh24:mi:ss",
+      status_pedido_id,
+      pedido_id
+    )
+  )
+  location ('historial_pedido_status.csv')
+);
+
+
 create table pedido_ext (
   folio               char(13),
   fecha               date,
@@ -518,6 +544,14 @@ when not matched then insert
   (b.folio, b.fecha, b.fecha_status, b.importe, b.cliente_id, b.responsable_id, b.status_pedido_id);
 drop table pedido_ext;
 
+merge into historial_pedido_status a using historial_pedido_status_ext b on
+  (false)
+when not matched then insert
+  (a.fecha_status, a.status_pedido_id, a.pedido_id)
+  values
+  (b.fecha_status, b.status_pedido_id, b.pedido_id);
+drop table historial_pedido_status_ext;
+
 merge into ubicacion_pedido a using ubicacion_pedido_ext b on
   (false)
 when not matched then insert
@@ -563,7 +597,7 @@ commit;
 
 set serveroutput on
 
-prompt Poblando historico de status de pedidos...
+-- prompt Poblando historico de status de pedidos...
 
 /*
  * Como no encontramos a tiempo una manera buena y rápida de poblar el
@@ -572,34 +606,34 @@ prompt Poblando historico de status de pedidos...
  * de negocio para que de muchos valores aleatorios, sólo se acepten nuevos
  * registros válidos.
  */
-declare
-  var_pedido_id         number(10,0);
-  var_status_pedido_id  number(10,0);
-  var_fecha_status      date;
-begin
-  -- LOL
-  for i in 1..20000 loop
-    begin
-
-      select dbms_random.value(1,1000) into var_pedido_id;
-      select dbms_random.value(1,5) into var_status_pedido_id;
-      select timestamp '2024-12-01 08:00:00' +
-         dbms_random.value * (timestamp '2024-12-07 17:59:59' -
-                     timestamp '2024-12-01 08:00:00') into var_fecha_status;
-
-      update pedido
-        set status_pedido_id = var_status_pedido_id,
-          fecha_status = var_fecha_status
-        where pedido_id = var_pedido_id;
-
-    exception
-      when others then
-        continue;
-    end;
-  end loop;
-end;
-/
-
-prompt Se ha poblado la tabla historico_status_pedido
+-- declare
+--   var_pedido_id         number(10,0);
+--   var_status_pedido_id  number(10,0);
+--   var_fecha_status      date;
+-- begin
+--   -- LOL
+--   for i in 1..20000 loop
+--     begin
+--
+--       select dbms_random.value(1,1000) into var_pedido_id;
+--       select dbms_random.value(1,5) into var_status_pedido_id;
+--       select timestamp '2024-12-01 08:00:00' +
+--          dbms_random.value * (timestamp '2024-12-07 17:59:59' -
+--                      timestamp '2024-12-01 08:00:00') into var_fecha_status;
+--
+--       update pedido
+--         set status_pedido_id = var_status_pedido_id,
+--           fecha_status = var_fecha_status
+--         where pedido_id = var_pedido_id;
+--
+--     exception
+--       when others then
+--         continue;
+--     end;
+--   end loop;
+-- end;
+-- /
+--
+-- prompt Se ha poblado la tabla historico_status_pedido
 
 commit;
