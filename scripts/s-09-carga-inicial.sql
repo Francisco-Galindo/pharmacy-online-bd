@@ -597,6 +597,8 @@ commit;
 
 set serveroutput on
 
+-- @/unam/bd/pharmacy-online-bd/scripts/carga-de-datos/poblador-de-historial.sql
+
 declare
   cursor cur_pedidos is select * from pedido;
 
