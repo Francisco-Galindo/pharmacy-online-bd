@@ -24,7 +24,9 @@ begin
     begin
 
       select dbms_random.value(1,1000) into var_pedido_id;
-      select dbms_random.value(1,5) into var_status_pedido_id;
+      -- Sesgando a valores menores
+      select least(dbms_random.value(2,5), dbms_random.value(2,5),
+        dbms_random.value(3,5)) into var_status_pedido_id;
       select timestamp '2024-12-01 08:00:00' +
          dbms_random.value * (timestamp '2024-12-07 17:59:59' -
                      timestamp '2024-12-01 08:00:00') into var_fecha_status;
