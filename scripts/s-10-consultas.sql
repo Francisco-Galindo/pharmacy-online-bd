@@ -101,7 +101,7 @@ fetch first
   10 rows only;
 
 /*
- * Cuál es el medicamento con la mayor proporción de devoluciones
+ * Cuáles son los tres medicamentos con la mayor proporción de devoluciones
  */
 select
   mn.nombre,
@@ -116,6 +116,8 @@ from
       join presentacion p on m.medicamento_id = p.medicamento_id
       join medicamento_pedido mp on p.presentacion_id = mp.presentacion_id
       join pedido p2 on p2.pedido_id = mp.pedido_id
+    where
+      mp.es_valido = true
     group by
       m.medicamento_id
   ) q1
@@ -129,7 +131,8 @@ from
       join medicamento_pedido mp2 on mp2.presentacion_id = p3.presentacion_id
       join pedido p4 on p4.pedido_id = mp2.pedido_id
     where
-      p4.status_pedido_id = (
+      mp2.es_valido = true
+      and p4.status_pedido_id = (
         select
           status_pedido_id
         from
@@ -145,7 +148,7 @@ from
 order by
   proporcion_cancelados desc
 fetch first
-  10 rows only;
+  3 rows only;
 
 /*
  * Seleccionas los 100 clientes cuyos gastos totales en pedidos sea mayor.
@@ -174,6 +177,8 @@ from
   natural join pedido p
   join medicamento_pedido mp using (pedido_id)
   natural join presentacion pr
+where
+  mp.es_valido = true
 group by
   c.nombre,
   c.ap_paterno,
@@ -182,7 +187,6 @@ order by
   gasto_total desc
 fetch first
   100 rows only;
-
 
 /*
  * Los lotes del medicamento 'Acetaflex', que llegó entre febrero y marzo de
@@ -257,7 +261,6 @@ from
   join pedido p on p.pedido_id = q1.pedido_id
   join empleado e on e.empleado_id = p.responsable_id;
 
-
-  /* Para tablas temporales, una query que devuelva la cantidad de medicamentos
- * que no se pueden comprar porque no hay suficientes
- */
+/* Para tablas temporales, una query que devuelva la cantidad de medicamentos
+* que no se pueden comprar porque no hay suficientes
+*/

@@ -240,7 +240,8 @@ create table ubicacion_pedido (
 
 create table medicamento_pedido (
   medicamento_pedido_id   number(10,0)  default on null medicamento_pedido_seq.nextval,
-  unidades                number(4,0)   not null,
+  unidades                number(4,0)   default on null 0,
+  es_valido               boolean       default on null true,
   presentacion_id                       not null,
   responsable_id                        not null,
   pedido_id                             not null,
