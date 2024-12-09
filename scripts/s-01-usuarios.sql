@@ -16,6 +16,7 @@ grant
   create table,
   create view,
   create synonym,
+  create public synonym,
   create sequence,
   create procedure,
   create trigger
