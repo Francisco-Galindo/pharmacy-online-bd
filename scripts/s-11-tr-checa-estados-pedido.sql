@@ -16,18 +16,24 @@ declare
   var_viejo_estado  status_pedido.clave%type;
   var_es_invalido   boolean;
 begin
+
+  select clave into var_nuevo_estado
+    from status_pedido
+    where status_pedido_id = :new.status_pedido_id;
+
   case
   when inserting then
     -- Todos los pedidosdeben empezar como CAPTURADO
-    if :new.status_pedido_id != 1 then
+    if var_nuevo_estado != 'CAPTURADO' then
       raise_application_error(-20101,
         'Todos los pedidos nuevos deben empezar como CAPTURADO.');
     end if;
-  when updating then
-    select clave into var_nuevo_estado
-      from status_pedido
-      where status_pedido_id = :new.status_pedido_id;
 
+    insert into historial_pedido_status
+      (fecha_status, status_pedido_id, pedido_id)
+      values (:new.fecha_status, :new.status_pedido_id, :new.pedido_id);
+
+  when updating then
     select clave into var_viejo_estado
       from status_pedido
       where status_pedido_id = :old.status_pedido_id;
@@ -40,7 +46,7 @@ begin
                        (var_viejo_estado = 'ENTREGADO' and
                         var_nuevo_estado not in ('DEVUELTO')) or
                        var_nuevo_estado = 'CAPTURADO' or
-                       var_viejo_estado in ('ENTREGADO', 'CANCELADO');
+                       var_viejo_estado in ('DEVUELTO', 'CANCELADO');
 
 
     if var_es_invalido then
