@@ -15,12 +15,14 @@ la base de datos que estamos desarrollando.
 
 La existencia de esta tabla externa es útil porque le permite a los empleados
 consultar fácilmente los datos del cargamento recibido sin tener todavía que
-guardarlo en la base, adicionalmente.
+guardarlo en la base.
  */
 
 prompt Creando directorio cargamento_dir
 connect sys/&p_sys_password@&p_pdb as sysdba
-create or replace directory cargamento_dir as '/unam/bd/proyecto-final/externas';
+create or replace directory cargamento_dir as '/unam/bd/pharmacy-online-bd/externas';
+
+!chmod 777 -R &p_root_dir/externas
 
 grant read, write on directory cargamento_dir to gs_proy_admin;
 
@@ -30,22 +32,33 @@ connect gs_proy_admin/gs_proy_admin@&p_pdb
 
 prompt Creando tabla externa
 create table cargamento_ext (
-  num_producto    number(10,0),
-  nombre          number(10,0),
-  cantidad        number(10,0)
+  unidades              number(10,0),
+  cantidad_presentacion number(10,0),
+  unidad_presentacion   varchar2(16),
+  precio                number(8,2),
+  medicamento_desc      varchar2(128),
+  medicamento_nombre    varchar2(128),
+  sustancia_activa      varchar2(128)
 )
 organization external (
   type oracle_loader
-  default directory tema07_dir
+  default directory cargamento_dir
   access parameters (
     records delimited by newline
     badfile cargamento_dir:'cargamento_ext_bad.log'
     logfile cargamento_dir:'cargamento_ext.log'
     fields terminated by ','
+    optionally enclosed by '"'
     lrtrim
     missing field values are null
     (
-      num_producto, nombre, cantidad
+      unidades,
+      cantidad_presentacion,
+      unidad_presentacion,
+      precio,
+      medicamento_nombre,
+      medicamento_desc,
+      sustancia_activa
     )
   )
   location ('cargamento_ext.csv')

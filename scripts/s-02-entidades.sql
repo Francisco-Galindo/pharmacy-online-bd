@@ -122,7 +122,7 @@ create table presentacion (
     cantidad >= 0
   ),
   constraint presentacion_unidad_chk check (
-    unidad in ('unidades', 'ml', 'g')
+    unidad in ('unidades', 'ml', 'g', 'mg')
   ),
   constraint presentacion_precio_chk check (
     precio > 0
