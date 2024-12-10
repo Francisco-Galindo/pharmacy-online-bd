@@ -29,14 +29,6 @@ begin
         'Todos los pedidos nuevos deben empezar como CAPTURADO.');
     end if;
 
-    insert into historial_pedido_status
-      (fecha_status, status_pedido_id, pedido_id)
-      values (:new.fecha_status, :new.status_pedido_id, :new.pedido_id);
-
-    update cliente
-      set puntaje_lealtad = least(puntaje_lealtad + 5, 100)
-      where cliente_id = :new.cliente_id;
-
   when updating then
     select clave into var_viejo_estado
       from status_pedido
@@ -83,6 +75,23 @@ begin
 end;
 /
 
+create or replace trigger tr_checa_estados_pedido
+  after
+    insert
+  on pedido
+  for each row
+begin
+
+  insert into historial_pedido_status
+    (fecha_status, status_pedido_id, pedido_id)
+    values (:new.fecha_status, :new.status_pedido_id, :new.pedido_id);
+
+  update cliente
+    set puntaje_lealtad = least(puntaje_lealtad + 5, 100)
+    where cliente_id = :new.cliente_id;
+
+end;
+/
 show errors
 
 disconnect;
