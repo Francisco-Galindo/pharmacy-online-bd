@@ -5,7 +5,7 @@
 
 connect gs_proy_admin/gs_proy_admin@&p_pdb
 
-create or replace trigger tr_checa_estados_pedido
+create or replace trigger tr_checa_estados_pedido_before
   before
     insert or
     update of status_pedido_id
@@ -51,19 +51,12 @@ begin
     end if;
 
     -- Inserta en el historial
-    if :new.fecha_status = :old.fecha_status then
-      update pedido set fecha_status = sysdate where pedido_id = :new.pedido_id;
-      insert into historial_pedido_status
-        (fecha_status, status_pedido_id, pedido_id)
-        values (sysdate, :new.status_pedido_id, :old.pedido_id);
-    else
-      insert into historial_pedido_status
-        (fecha_status, status_pedido_id, pedido_id)
-        values (:new.fecha_status, :new.status_pedido_id, :old.pedido_id);
-    end if;
+    insert into historial_pedido_status
+      (fecha_status, status_pedido_id, pedido_id)
+      values (:new.fecha_status, :new.status_pedido_id, :old.pedido_id);
 
     if var_nuevo_estado in ('DEVUELTO', 'CANCELADO') then
-      actualiza_inventario(:new.pedido_id, var_viejo_estado);
+      actualiza_inventario(:new.pedido_id, var_viejo_estado, var_nuevo_estado);
     end if;
 
     if var_nuevo_estado = 'CANCELADO' and var_viejo_estado = 'EN_TRANSITO' then
@@ -74,8 +67,9 @@ begin
   end case;
 end;
 /
+show errors;
 
-create or replace trigger tr_checa_estados_pedido
+create or replace trigger tr_checa_estados_pedido_after
   after
     insert
   on pedido
