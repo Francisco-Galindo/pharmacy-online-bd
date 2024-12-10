@@ -59,10 +59,12 @@ begin
       where nombre = r.medicamento_nombre;
 
     if v_num_matches = 0 then
+      dbms_output.put_line('No se encontró ningún medicamento con ese nombre');
       begin
         select sustancia_activa_id into v_sustancia_id
           from sustancia_activa
           where sustancia = r.sustancia_activa;
+          dbms_output.put_line('Agregando nuevo medicamento');
           insert into medicamento
             (medicamento_id, sustancia_activa_id, descripcion)
             values (
@@ -72,6 +74,8 @@ begin
             );
       exception
         when no_data_found then
+          dbms_output.put_line(
+            'Agregando nueva sustancia activa y medicamento con la info dada');
           insert into sustancia_activa
             (sustancia_activa_id, sustancia)
             values (sustancia_activa_seq.nextval, r.sustancia_activa);
@@ -85,6 +89,7 @@ begin
             );
       end;
 
+      dbms_output.put_line('Agregando nueva presentación');
       insert into presentacion
         (presentacion_id, cantidad, unidad, precio, medicamento_id)
         values (
@@ -139,9 +144,3 @@ begin
 end;
 /
 show errors
-
-begin
-  ingresa_cargamento(10, 91);
-  commit;
-end;
-/
