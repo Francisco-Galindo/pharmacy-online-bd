@@ -17,8 +17,6 @@ Prompt Prueba
 prompt Haciendo pedido de seis (unidades) medicamentos
 Prompt =========================================================================
 
-Prompt El importe debería ser la suma de los precios de todos los medicamentos
-
 declare
   v_cliente_id                number(10,0);
   v_pedido_id                 number(10,0);
@@ -62,9 +60,9 @@ begin
     where mp.presentacion_id = if2.presentacion_id
       and mp.pedido_id = v_pedido_id;
 
-  dbms_output.put_line('Stock antes: ' || v_num_disponibles_antes);
-  dbms_output.put_line('Stock después: ' || v_num_disponibles_despues);
-  dbms_output.put_line('Diferencia' || v_num_disponibles_antes -  v_num_disponibles_despues);
+  dbms_output.put_line('Se espera una diferencia de seis: ');
+  dbms_output.put_line('  Stock antes: ' || v_num_disponibles_antes);
+  dbms_output.put_line('  Stock después: ' || v_num_disponibles_despues);
 
 
   if v_num_disponibles_antes - v_num_disponibles_despues = 6 then
