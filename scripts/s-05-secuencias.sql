@@ -127,3 +127,9 @@ create sequence inventario_farmacia_seq
   increment by 1
   nocycle
   cache 512;
+
+create sequence carrito_compras_seq
+  start with 1
+  increment by 1
+  nocycle
+  cache 512;
