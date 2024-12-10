@@ -246,13 +246,16 @@ create table ubicacion_pedido (
 
 create table medicamento_pedido (
   medicamento_pedido_id   number(10,0)  default on null medicamento_pedido_seq.nextval,
-  unidades                number(4,0)   default on null 0,
+  unidades                number(4,0)   default on null 1,
   es_valido               boolean       default on null true,
   presentacion_id                       not null,
   responsable_id                        not null,
   pedido_id                             not null,
   farmacia_id                           not null,
   constraint medicamento_pedido_pk primary key (medicamento_pedido_id),
+  constraint medicamento_pedido_unidades_chk check (
+    unidades > 0
+  ),
   constraint medicamento_pedido_presentacion_id_fk
     foreign key (presentacion_id)
     references presentacion(presentacion_id),
@@ -327,7 +330,7 @@ create table inventario_farmacia (
 
 create table carrito_compras (
   carrito_compras_id      number(10,0)  default on null carrito_compras_seq.nextval,
-  unidades                number(4,0)   default on null 0,
+  unidades                number(4,0)   default on null 1,
   presentacion_id                       not null,
   cliente_id                            not null,
   constraint carrito_compras_pk primary key (carrito_compras_id),
