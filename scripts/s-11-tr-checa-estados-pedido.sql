@@ -33,6 +33,10 @@ begin
       (fecha_status, status_pedido_id, pedido_id)
       values (:new.fecha_status, :new.status_pedido_id, :new.pedido_id);
 
+    update cliente
+      set puntaje_lealtad = least(puntaje_lealtad + 5, 100)
+      where cliente_id = :new.cliente_id;
+
   when updating then
     select clave into var_viejo_estado
       from status_pedido
@@ -68,6 +72,12 @@ begin
 
     if var_nuevo_estado in ('DEVUELTO', 'CANCELADO') then
       actualiza_inventario(:new.pedido_id, var_viejo_estado);
+    end if;
+
+    if var_nuevo_estado = 'CANCELADO' and var_viejo_estado = 'EN_TRANSITO' then
+      update cliente
+        set puntaje_lealtad = greatest(puntaje_lealtad - 1, 0)
+        where cliente_id = :new.cliente_id;
     end if;
   end case;
 end;
