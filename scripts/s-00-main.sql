@@ -12,6 +12,7 @@ define p_root_dir='/unam/bd/pharmacy-online-bd'
 @&p_root_dir/scripts/s-15-fx-crear-folio-pedido.sql
 @&p_root_dir/scripts/s-15-fx-elegir-responsable-random.sql
 @&p_root_dir/scripts/s-15-fx-get-precio-presentacion.sql
+@&p_root_dir/scripts/s-15-fx-lee-documento.sql
 
 @&p_root_dir/scripts/s-13-p-actualiza-inventario.sql
 @&p_root_dir/scripts/s-11-tr-checa-estados-pedido.sql
@@ -19,3 +20,4 @@ define p_root_dir='/unam/bd/pharmacy-online-bd'
 @&p_root_dir/scripts/s-13-p-ingresa-operacion.sql
 -- @&p_root_dir/scripts/s-03-tablas-temporales.sql
 @&p_root_dir/scripts/s-13-p-pedir-desde-carrito.sql
+@&p_root_dir/scripts/s-13-p-carga-archivo.sql
