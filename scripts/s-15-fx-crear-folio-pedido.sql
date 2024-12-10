@@ -4,14 +4,13 @@
 --              un nuevo pedido. Se asegura de que este folio no esté repetido
 
 create or replace function crear_folio_pedido (
-  p_cliente_id        cliente.cliente_id%type,
-  p_responsable_id    pedido.responsable_id%type,
-  p_fecha             pedido.fecha%type
-)
-return presentacion.precio%type is
+  p_cliente_id      number,
+  p_responsable_id  number,
+  p_fecha           date
+) return varchar2 is
   v_folio             pedido.folio%type;
-  v_cliente_curp      pedido.folio%type;
-  v_responsable_rfc   pedido.folio%type;
+  v_cliente_curp      cliente.curp%type;
+  v_responsable_rfc   empleado.rfc%type;
   v_count             number(10,0);
 begin
   select curp into v_cliente_curp
