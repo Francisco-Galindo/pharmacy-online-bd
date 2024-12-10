@@ -12,28 +12,26 @@ create or replace trigger tr_calcula_importe_pedido
   on medicamento_pedido
   for each row
 declare
-  v_precio_medicamento  presentacion.precio%type;
+  v_precio              presentacion.precio%type;
   v_descuento_cliente   cliente.descuento%type;
 begin
-  select precio into v_precio_medicamento
-    from presentacion
-    where presentacion_id = :new.presentacion_id;
+  v_precio := get_precio_presentacion(:new.presentacion_id);
 
   case
   when inserting then
     if :new.es_valido = true then
       update pedido
-        set importe = importe + (v_precio_medicamento * (1 - v_descuento_cliente))
+        set importe = importe + (v_precio * (1 - v_descuento_cliente))
         where pedido_id = :new.pedido_id;
     end if;
   when updating then
     if :old.es_valido = true and :new.es_valido = false then
       update pedido
-        set importe = importe - (v_precio_medicamento * (1 - v_descuento_cliente))
+        set importe = importe - (v_precio * (1 - v_descuento_cliente))
         where pedido_id = :new.pedido_id;
     elsif :old.es_valido = false and :new.es_valido = true then
       update pedido
-        set importe = importe + (v_precio_medicamento * (1 - v_descuento_cliente))
+        set importe = importe + (v_precio * (1 - v_descuento_cliente))
         where pedido_id = :new.pedido_id;
     end if;
   end case;

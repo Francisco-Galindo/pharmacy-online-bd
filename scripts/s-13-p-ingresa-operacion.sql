@@ -145,5 +145,3 @@ begin
   commit;
 end;
 /
-
-disconnect

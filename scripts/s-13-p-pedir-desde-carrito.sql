@@ -34,15 +34,7 @@ create or replace procedure pedir_desde_carrito (
   v_i                         number(10,0);
 
 begin
-  select empleado_id into v_responsable_id
-    from empleado
-    where centro_operaciones_id in (
-      select centro_operaciones_id
-      from centro_operaciones co
-      where es_almacen = true
-    )
-    order by dbms_random.random
-    fetch first 1 rows only;
+  v_responsable_id := elegir_responsable_random();
 
   v_i := 0;
   for r in cur_carrito loop
@@ -51,7 +43,7 @@ begin
         (pedido_id, folio, cliente_id, responsable_id)
         values (
           pedido_seq.nextval,
-          dbms_random.string('U', 13),
+          crear_folio_pedido(p_cliente_id, v_responsable_id, sysdate),
           p_cliente_id,
           v_responsable_id
         );
