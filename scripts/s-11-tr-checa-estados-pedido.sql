@@ -17,6 +17,14 @@ for insert or update of status_pedido_id
   type pedidos_lista_type is table of pedido_a_fechar_type;
   pedidos_lista pedidos_lista_type := pedidos_lista_type();
 
+  type pedido_a_fechar_type2 is record (
+    pedido_id     pedido.pedido_id%type,
+    viejo_status  status_pedido.clave%type,
+    nuevo_status  status_pedido.clave%type
+  );
+  type pedidos_lista_type2 is table of pedido_a_fechar_type2;
+  pedidos_lista2 pedidos_lista_type2 := pedidos_lista_type2();
+
   var_es_invalido   boolean;
   var_nuevo_estado  status_pedido.clave%type;
   var_viejo_estado  status_pedido.clave%type;
@@ -64,6 +72,7 @@ for insert or update of status_pedido_id
 
   after each row is
       v_index number;
+      v_index2 number;
   begin
     case
     when inserting then
@@ -92,8 +101,14 @@ for insert or update of status_pedido_id
           values (:new.fecha_status, :new.status_pedido_id, :old.pedido_id);
       end if;
 
-      if var_nuevo_estado in ('DEVUELTO', 'CANCELADO') then
-        actualiza_inventario(:new.pedido_id, var_viejo_estado, var_nuevo_estado);
+      if var_nuevo_estado in ('EN_TRANSITO', 'DEVUELTO', 'CANCELADO') then
+        pedidos_lista2.extend;
+        v_index2 := pedidos_lista2.last;
+        pedidos_lista2(v_index2).pedido_id := :new.pedido_id;
+        pedidos_lista2(v_index2).viejo_status := var_viejo_estado;
+        pedidos_lista2(v_index2).nuevo_status := var_nuevo_estado;
+
+        -- actualiza_inventario(:new.pedido_id, var_viejo_estado, var_nuevo_estado);
       end if;
 
       if var_nuevo_estado = 'CANCELADO' and var_viejo_estado = 'EN_TRANSITO' then
@@ -108,6 +123,13 @@ for insert or update of status_pedido_id
 
   after statement is
   begin
+    for i in 1 .. pedidos_lista2.count loop
+      actualiza_inventario(
+        pedidos_lista2(i).pedido_id,
+        pedidos_lista2(i).viejo_status,
+        pedidos_lista2(i).nuevo_status
+      );
+    end loop;
     forall i in pedidos_lista.first .. pedidos_lista.last
     update pedido
       set fecha_status = sysdate
