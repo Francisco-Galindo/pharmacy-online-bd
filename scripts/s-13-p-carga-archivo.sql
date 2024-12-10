@@ -14,7 +14,7 @@ begin
   for r in cur_almacenes loop
     begin
       v_blob := get_blob (r.centro_operaciones_id || '.pdf');
-      dbms_output.put_line(dbms_lob.getlength(v_blob));
+      dbms_output.put_line('Encontrado ' || r.centro_operaciones_id || '.pdf: ' || dbms_lob.getlength(v_blob) || ' bytes');
       update almacen
         set documento = v_blob
         where centro_operaciones_id = r.centro_operaciones_id;
@@ -26,10 +26,3 @@ begin
 end;
 /
 show errors
-
-begin
-  carga_archivo_almacen();
-end;
-/
-
-select centro_operaciones_id, documento from almacen;
