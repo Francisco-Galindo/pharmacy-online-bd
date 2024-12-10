@@ -6,10 +6,10 @@
 
 create or replace procedure actualiza_inventario (
   p_pedido_id in pedido.pedido_id%type,
-  p_clave_viejo_status in status_pedido.clave%type
+  p_clave_viejo_status in status_pedido.clave%type,
+  p_clave_nuevo_status in status_pedido.clave%type
 ) is
 
-  v_clave_nuevo_status  status_pedido.status_pedido_id%type;
   v_disponibles         inventario_farmacia.num_disponibles%type;
   v_inventario_row      inventario_farmacia%rowtype;
 
@@ -17,11 +17,6 @@ create or replace procedure actualiza_inventario (
     select * from medicamento_pedido where pedido_id = p_pedido_id;
 
 begin
-  select
-    sp.clave into v_clave_nuevo_status
-    from pedido p
-      join status_pedido sp on p.status_pedido_id = sp.status_pedido_id
-    where p.pedido_id = p_pedido_id;
 
   for r in cur_meds_pedido loop
     select
@@ -33,7 +28,7 @@ begin
         and inv.presentacion_id = r.presentacion_id
         and inv.farmacia_id = r.farmacia_id;
 
-    if v_clave_nuevo_status = 'EN_TRANSITO' then
+    if p_clave_nuevo_status = 'EN_TRANSITO' then
       if v_inventario_row.num_disponibles > r.unidades then
         update inventario_farmacia
           set
@@ -41,6 +36,9 @@ begin
           where
             inventario_farmacia_id = v_inventario_row.inventario_farmacia_id;
       else
+        -- Nunca se va a llegar a este punto si se utiliza el procedimiento
+        -- pedir_desde_carrito. De todas maneras es buena idea para que cambios
+        -- manuales no afecten.
         dbms_output.put_line('No hay suficiente stock en esa farmacia.');
         update medicamento_pedido
           set
@@ -48,8 +46,8 @@ begin
           where
             medicamento_pedido_id = r.medicamento_pedido_id;
       end if;
-    elsif v_clave_nuevo_status = 'DEVUELTO'
-          or (v_clave_nuevo_status = 'CANCELADO'
+    elsif p_clave_nuevo_status = 'DEVUELTO'
+          or (p_clave_nuevo_status = 'CANCELADO'
               and p_clave_viejo_status = 'EN_TRANSITO')  then
 
       update inventario_farmacia
