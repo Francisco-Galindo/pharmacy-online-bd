@@ -191,24 +191,72 @@ from (
  * de nombre Juan que estén involucrados en el pedido con id 60
  */
 
- select
-  e.empleado_id,
-  e.nombre,
-  e.ap_paterno
-    from (
-      select 
-    ) 
+select
+  *
+from
+  empleado e
+  join MEDICAMENTO_PEDIDO mp on e.EMPLEADO_ID = mp.RESPONSABLE_ID
+  join PEDIDO p on p.PEDIDO_ID = mp.PEDIDO_ID where p.PEDIDO_ID = 60 and e.NOMBRE  = 'Regina';
 
 
-
-
-
+select * from (
+select
+  e.nombre, e.ap_paterno, e.rfc
+from
+  empleado e
+  join medicamento_pedido mp on e.empleado_id = mp.responsable_id
+  join pedido p on p.pedido_id = mp.pedido_id
+where
+  p.pedido_id = 60
+) intersect (
+select
+  e.nombre, e.ap_paterno, e.rfc
+from
+  empleado e
+  join medicamento_pedido mp on e.empleado_id = mp.responsable_id
+  join pedido p on p.pedido_id = mp.pedido_id
+where e.nombre = 'Regina'
+) union (
+select
+  e.nombre, e.ap_paterno, e.rfc
+from
+  empleado e
+  join pedido p on p.responsable_id = e.empleado_id
+where e.nombre = 'Regina' and p.pedido_id = 60
+);
 
 
 
 /*
+ * Obtener todos los nombres de los medicamentos en la tabla
+ * externa que no están en la base de datos
+ */
+select
+  medicamento_nombre
+from
+  cargamento_ext minus
+select
+  medicamento_nombre
+from
+  cargamento_ext ce
+  join MEDICAMENTO_NOMBRE mn on mn.NOMBRE = ce.medicamento_nombre;
+
+
+/*
+ * Todos los id's de los centros de operaciones que son tanto]
+ * almacenes como farmacias.
+ */
+select
+  centro_operaciones_id
+from
+  centro_operaciones_desnomormalizado
+where
+  es_almacen = true
+  and es_farmacia = true;
+
+
+/*
  * Consultas faltantes:
- *   - operador union e intersect
  *   - consulta con tabla temporal (supertipo desnormalizada)
  *   - consulta que involucre una tabla externa
  */
