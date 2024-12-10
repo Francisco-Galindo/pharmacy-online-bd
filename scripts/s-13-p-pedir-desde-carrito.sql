@@ -21,7 +21,8 @@
 set serveroutput on
 
 create or replace procedure pedir_desde_carrito (
-  p_cliente_id in cliente.cliente_id%type
+  p_cliente_id in cliente.cliente_id%type,
+  p_pedido_id out pedido.pedido_id%type
 ) is
 
   cursor cur_carrito is
@@ -36,6 +37,8 @@ create or replace procedure pedir_desde_carrito (
 begin
   v_responsable_id := elegir_responsable_random();
 
+  dbms_output.put_line('asdf');
+
   v_i := 0;
   for r in cur_carrito loop
     if v_i = 0 then
@@ -48,27 +51,20 @@ begin
           v_responsable_id,
           (select status_pedido_id from status_pedido where clave = 'CAPTURADO')
         );
+      p_pedido_id := pedido_seq.currval;
     end if;
 
 
     begin
       select
-          farmacia_id into v_farmacia_id
+        farmacia_id into v_farmacia_id
         from
-          inventario_farmacia
+          inventario_farmacia if2
         where
           presentacion_id = 1
-          and num_disponibles = (
-            select
-              max(num_disponibles)
-            from
-              INVENTARIO_FARMACIA if2
-            where
-              presentacion_id = 1
-              and num_disponibles > 5
-            group by
-              PRESENTACION_ID
-          )
+          and num_disponibles >= r.unidades
+        order by
+          num_disponibles desc
         fetch first
           1 rows only;
     exception

@@ -22,11 +22,13 @@ begin
     select
       inv.* into v_inventario_row
       from inventario_farmacia inv
-        join medicamento_pedido mp on mp.farmacia_id = inv.farmacia_id
+        join presentacion p on inv.presentacion_id = p.presentacion_id
+        join medicamento_pedido mp on mp.presentacion_id = p.presentacion_id
       where
         mp.pedido_id = p_pedido_id
         and inv.presentacion_id = r.presentacion_id
-        and inv.farmacia_id = r.farmacia_id;
+        and inv.farmacia_id = r.farmacia_id
+      fetch first 1 rows only;
 
     if p_clave_nuevo_status = 'EN_TRANSITO' then
       if v_inventario_row.num_disponibles > r.unidades then

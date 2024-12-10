@@ -19,6 +19,7 @@ declare
   v_total_esperado  number(8,2);
   v_total_obtenido  number(8,2);
   v_descuento       number(8,2);
+  v_pedido_id       number(10,0);
 begin
   v_cliente_id := 1;
 
@@ -38,10 +39,10 @@ begin
     from presentacion
     where presentacion_id in (1, 2, 3);
 
-  pedir_desde_carrito(v_cliente_id);
+  pedir_desde_carrito(v_cliente_id, v_pedido_id);
 
 
-  select importe into v_total_obtenido from pedido where pedido_id = (select max(pedido_id) from pedido where cliente_id = v_cliente_id);
+  select importe into v_total_obtenido from pedido where pedido_id = v_pedido_id;
 
   select descuento into v_descuento from cliente where cliente_id = v_cliente_id;
 
@@ -71,6 +72,7 @@ declare
   v_total_esperado  number(8,2);
   v_total_obtenido  number(8,2);
   v_descuento       number(8,2);
+  v_pedido_id       number(10,0);
 begin
   v_cliente_id := 1;
 
@@ -92,9 +94,8 @@ begin
     where p.presentacion_id in (1, 2, 3)
       and cliente_id = v_cliente_id;
 
-  pedir_desde_carrito(v_cliente_id);
-
-  select importe into v_total_obtenido from pedido where pedido_id = (select max(pedido_id) from pedido where cliente_id = v_cliente_id);
+  pedir_desde_carrito(v_cliente_id, v_pedido_id);
+  select importe into v_total_obtenido from pedido where pedido_id = v_pedido_id;
 
   select descuento into v_descuento from cliente where cliente_id = v_cliente_id;
 
