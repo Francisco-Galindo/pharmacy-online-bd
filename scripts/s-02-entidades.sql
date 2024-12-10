@@ -173,11 +173,12 @@ create table cliente (
 );
 
 create table tarjeta_credito (
-  cliente_id,
+  tarjeta_credito_id  number(10,0)  default on null tarjeta_credito_seq.nextval,
   digitos             number(20,0)  not null,
   mes_exp             number(2,0)   not null,
   ano_exp             number(2,0)   not null,
-  constraint tarjeta_credito_pk primary key (cliente_id),
+  cliente_id                        not null,
+  constraint tarjeta_credito_pk primary key (tarjeta_credito_id),
   constraint tarjeta_credito_cliente_id_fk
     foreign key (cliente_id)
     references cliente(cliente_id)

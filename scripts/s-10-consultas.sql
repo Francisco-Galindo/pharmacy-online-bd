@@ -1,46 +1,18 @@
 --@Autor(es): Francisco Galindo, Andrea Saldaña
 --@Fecha creación: 03/12/2024
 --@Descripción: Script con consultas para la base de datos
+
 /*
  * Consulta para conocer el tiempo promedio que le toma a un pedido llegar a su
  * destino.
  * Sólo se estan tomando en cuenta aquellos pedidos que sí son entregados :p
  */
 select
-  round(avg(q1.fecha_status - q2.fecha_status) * 24, 0) as horas_promedio
+  round(avg(fpe.fecha_status - fcp.fecha_status) * 24, 0) as horas_promedio
 from
-  (
-    select
-      pedido_id,
-      fecha_status
-    from
-      pedido p
-    where
-      status_pedido_id = (
-        select
-          status_pedido_id
-        from
-          status_pedido
-        where
-          clave = 'ENTREGADO'
-      )
-  ) q1
-  join (
-    select
-      pedido_id,
-      fecha_status
-    from
-      historial_pedido_status
-    where
-      status_pedido_id = (
-        select
-          status_pedido_id
-        from
-          status_pedido sp
-        where
-          clave = 'CAPTURADO'
-      )
-  ) q2 on q1.pedido_id = q2.pedido_id;
+  v_fechas_pedido_entregado fpe
+  join v_fechas_captura_pedido fcp
+  on fpe.pedido_id = fcp.pedido_id;
 
 /*
  * Porcentaje de pedidos que han sido cancelados
@@ -59,7 +31,7 @@ from
       count(*) as num_cancelados
     from
       pedido p
-      join status_pedido sp on p.status_pedido_id = sp.status_pedido_id
+      join stat_ped sp on p.status_pedido_id = sp.status_pedido_id
     where
       sp.clave = 'CANCELADO'
   );
@@ -69,32 +41,13 @@ from
  * cancelados
  */
 select
-  q1.empleado_id,
+  vep.empleado_id,
   (num_cancelados / num_pedidos) as proporcion_cancelados
-from
-  (
-    select
-      empleado_id,
-      count(*) as num_pedidos
-    from
-      empleado e1
-      join pedido p1 on e1.empleado_id = p1.responsable_id
-    having
-      num_pedidos >= 5
-    group by
-      empleado_id
-  ) q1
-  join (
-    select
-      empleado_id,
-      count(*) as num_cancelados from empleado e2
-      join pedido p2 on e2.empleado_id = p2.responsable_id
-      join status_pedido sp on sp.status_pedido_id = p2.status_pedido_id
-    where
-      sp.clave = 'CANCELADO'
-    group by
-      empleado_id
-  ) q2 on q1.empleado_id = q2.empleado_id
+    from 
+      v_empleados_con_min_5_pedidos vep
+    join 
+      ped_cancel_p_emp pce 
+        on vep.empleado_id = pce.empleado_id
 order by
   proporcion_cancelados desc
 fetch first
@@ -124,43 +77,11 @@ from
       m3.descripcion,
       (num_cancelados / num_pedidos) as proporcion_cancelados
     from
-      (
-        select
-          m.medicamento_id,
-          count(*) as num_pedidos
-        from
-          medicamento m
-          join presentacion p on m.medicamento_id = p.medicamento_id
-          join medicamento_pedido mp on p.presentacion_id = mp.presentacion_id
-          join pedido p2 on p2.pedido_id = mp.pedido_id
-        where
-          mp.es_valido = true
-        group by
-          m.medicamento_id
-      ) q1
-      join (
-        select
-          m2.medicamento_id,
-          count(*) as num_cancelados
-        from
-          medicamento m2
-          join presentacion p3 on m2.medicamento_id = p3.medicamento_id
-          join medicamento_pedido mp2 on mp2.presentacion_id = p3.presentacion_id
-          join pedido p4 on p4.pedido_id = mp2.pedido_id
-        where
-          mp2.es_valido = true
-          and p4.status_pedido_id = (
-            select
-              status_pedido_id
-            from
-              status_pedido
-            where
-              clave = 'DEVUELTO'
-          )
-        group by
-          m2.medicamento_id
-      ) q2 on q1.medicamento_id = q2.medicamento_id
-      join medicamento m3 on m3.medicamento_id = q1.medicamento_id
+      v_pedidos_por_medicamento vpm
+      join
+        v_num_devoluciones_medicamento vdm 
+          on vpm.medicamento_id = vdm.medicamento_id
+      join medicamento m3 on m3.medicamento_id = vpm.medicamento_id
       --join medicamento_nombre mn on m3.medicamento_id = mn.medicamento_id
     order by
       proporcion_cancelados desc
@@ -170,7 +91,7 @@ from
 
 
 /*
- * Seleccionas los 100 clientes cuyos gastos totales en pedidos sea mayor.
+ * Seleccionas los 100 clientes cuyos gastos totales en pedidos sea mayor a $1000.
  * Se va a a utilizar natural join.
  * No tener en cuenta aquellas personas que tengan una tarjeta vencida
  */
@@ -180,18 +101,7 @@ select
   c.curp,
   sum(precio) as gasto_total
 from
-  (
-    select
-      cliente_id
-    from
-      cliente minus
-    select
-      cliente_id
-    from
-      tarjeta_credito
-    where
-      ano_exp || mes_exp > to_char(sysdate, 'yymm')
-  ) q1
+  v_clientes_con_tarjeta_expirada
   natural join cliente c
   natural join pedido p
   join medicamento_pedido mp using (pedido_id)
@@ -202,6 +112,8 @@ group by
   c.nombre,
   c.ap_paterno,
   c.curp
+  having
+    gasto_total > 1000
 order by
   gasto_total desc
 fetch first
@@ -228,58 +140,75 @@ from
   join centro_operaciones co on e.centro_operaciones_id = co.centro_operaciones_id
 where
   mn.NOMBRE = 'Acetaflex'
-  and o.fecha_operacion > to_date(
+  and o.fecha_operacion >= to_date(
     '2024-02-01 00:00:00',
     'yyyy-mm-dd
     hh24:mi:ss'
   )
-  and o.fecha_operacion < to_date('2024-04-30 23:59:59', 'yyyy-mm-dd hh24:mi:ss');
+  and o.fecha_operacion <= to_date('2024-04-30 23:59:59', 'yyyy-mm-dd hh24:mi:ss');
 
 /*
- * Los últimos pedidos hechos por 'Matias Santiago Ruiz' y 'Emmanuel Romero
- * Flores' fueron intercambiados.
- *
  * Los últimos dos pedidos que se han realizado fueron intercambiados, es
  * decir, uno se le está entregando al cliente correspondiente al otro.
  * Identifica los nombre los encargados de cada pedido para que puedan corregir
  * el error.
  */
-select
-  nombre,
-  ap_paterno,
-  ap_materno
-from
-  cliente;
 
 select
   e.nombre,
   e.ap_paterno,
   e.ap_materno,
   e.rfc
-from
-  (
-    select
-      fecha_status,
-      pedido_id
-    from
-      historial_pedido_status hps
-    where
-      status_pedido_id = (
-        select
-          status_pedido_id
-        from
-          status_pedido
-        where
-          clave = 'CAPTURADO'
-      )
+from (
+  select *
+    from 
+      v_fechas_captura_pedido v
     order by
-      fecha_status desc
+      v.fecha_status desc
     fetch first
       2 rows only
   ) q1
   join pedido p on p.pedido_id = q1.pedido_id
   join empleado e on e.empleado_id = p.responsable_id;
 
-/* Para tablas temporales, una query que devuelva la cantidad de medicamentos
-* que no se pueden comprar porque no hay suficientes
-*/
+/*
+ * Se muestran a todos los almacenes con su almacén de contingencia
+ * en caso de tenerlo
+ */
+
+ select
+  a.centro_operaciones_id,
+  ac.almacen_contingencia_id
+  from 
+    almacen a
+      left outer join 
+        almacen ac 
+  on a.centro_operaciones_id = ac.centro_operaciones_id
+ ;
+
+/*
+ * Se recupera el id, nombre y apellido paterno de todos los empleados
+ * de nombre Juan que estén involucrados en el pedido con id 60
+ */
+
+ select
+  e.empleado_id,
+  e.nombre,
+  e.ap_paterno
+    from (
+      select 
+    ) 
+
+
+
+
+
+
+
+
+/*
+ * Consultas faltantes:
+ *   - operador union e intersect
+ *   - consulta con tabla temporal (supertipo desnormalizada)
+ *   - consulta que involucre una tabla externa
+ */

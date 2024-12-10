@@ -1,4 +1,4 @@
-define p_pdb='fgmbd_s1'
+define p_pdb='asnbd_s1'
 define p_sys_password='system1'
 define p_root_dir='/unam/bd/pharmacy-online-bd'
 
@@ -8,6 +8,10 @@ define p_root_dir='/unam/bd/pharmacy-online-bd'
 @&p_root_dir/scripts/s-04-tablas-externas.sql
 @&p_root_dir/scripts/s-06-indices.sql
 @&p_root_dir/scripts/s-07-sinonimos.sql
+<<<<<<< Updated upstream
+=======
+@&p_root_dir/scripts/s-08-vistas.sql
+>>>>>>> Stashed changes
 @&p_root_dir/scripts/s-09-carga-inicial.sql
 
 @&p_root_dir/scripts/s-15-fx-crear-folio-pedido.sql
