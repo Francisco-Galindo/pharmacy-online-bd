@@ -40,18 +40,16 @@ begin
   for r in cur_carrito loop
     if v_i = 0 then
       insert into pedido
-        (pedido_id, folio, cliente_id, responsable_id)
+        (pedido_id, folio, cliente_id, responsable_id, status_pedido_id)
         values (
           pedido_seq.nextval,
           crear_folio_pedido(p_cliente_id, v_responsable_id, sysdate),
           p_cliente_id,
-          v_responsable_id
+          v_responsable_id,
+          (select status_pedido_id from status_pedido where clave = 'CAPTURADO')
         );
     end if;
 
-    if v_i = 0 then
-      exit;
-    end if;
 
     begin
       select
@@ -91,15 +89,15 @@ begin
         v_farmacia_id
       );
 
+    v_i := v_i + 1;
   end loop;
+
+  if v_i != 0 then
+    delete from carrito_compras where cliente_id = p_cliente_id;
+  end if;
+
 end;
 /
 show errors
-
-begin
-  pedir_desde_carrito(1);
-  commit;
-end;
-/
 
 disconnect

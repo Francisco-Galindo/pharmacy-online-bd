@@ -16,28 +16,31 @@ declare
   v_descuento_cliente   cliente.descuento%type;
 begin
   v_precio := get_precio_presentacion(:new.presentacion_id);
+  select descuento into v_descuento_cliente
+    from cliente c
+    join pedido p on c.cliente_id = p.cliente_id
+    where p.pedido_id = :new.pedido_id;
 
   case
   when inserting then
     if :new.es_valido = true then
       update pedido
-        set importe = importe + (v_precio * (1 - v_descuento_cliente))
+        set importe = importe + :new.unidades * (v_precio * (1 - v_descuento_cliente))
         where pedido_id = :new.pedido_id;
     end if;
   when updating then
     if :old.es_valido = true and :new.es_valido = false then
       update pedido
-        set importe = importe - (v_precio * (1 - v_descuento_cliente))
+        set importe = importe - :new.unidades * (v_precio * (1 - v_descuento_cliente))
         where pedido_id = :new.pedido_id;
     elsif :old.es_valido = false and :new.es_valido = true then
       update pedido
-        set importe = importe + (v_precio * (1 - v_descuento_cliente))
+        set importe = importe + :new.unidades * (v_precio * (1 - v_descuento_cliente))
         where pedido_id = :new.pedido_id;
     end if;
   end case;
 end;
 /
-
 show errors
 
 disconnect;
