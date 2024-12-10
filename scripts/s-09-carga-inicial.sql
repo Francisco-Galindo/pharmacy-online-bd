@@ -21,43 +21,6 @@ prompt Insertando datos que se crearon directamente
 
 prompt Creando tablas externas
 
-create table centro_operaciones_ext (
-  clave                   char(6),
-  direccion               varchar2(128),
-  latitud                 number(8,6),
-  longitud                number(9,6),
-  telefono                number(10),
-  es_oficina              boolean,
-  es_almacen              boolean,
-  es_farmacia             boolean
-)
-organization external (
-  type oracle_loader
-  default directory carga_datos_dir
-  access parameters (
-    records delimited by newline
-    badfile carga_datos_dir:'centro_operaciones_ext_bad.log'
-    logfile carga_datos_dir:'centro_operaciones_ext.log'
-    fields terminated by ','
-    optionally enclosed by '"'
-    lrtrim
-    missing field values are null
-    (
-      clave,
-      direccion,
-      latitud,
-      longitud,
-      telefono,
-      es_oficina,
-      es_almacen,
-      es_farmacia
-    )
-  )
-  location ('centro_operaciones.csv')
-)
-reject limit unlimited;
-
-
 create table empleado_ext (
   nombre                  varchar2(128),
   ap_paterno              varchar2(128),
@@ -91,89 +54,6 @@ organization external (
   location ('empleado.csv')
 )
 reject limit unlimited;
-
-
-create table oficina_ext (
-  centro_operaciones_id   number(10,0),
-  telefono_cc             number(10,0),
-  nombre                  varchar2(128),
-  clave_presupuestal      varchar2(256)
-)
-organization external (
-  type oracle_loader
-  default directory carga_datos_dir
-  access parameters (
-    records delimited by newline
-    badfile carga_datos_dir:'oficina_ext_bad.log'
-    logfile carga_datos_dir:'oficina_ext.log'
-    fields terminated by ','
-    optionally enclosed by '"'
-    lrtrim
-    missing field values are null
-    (
-      centro_operaciones_id,
-      telefono_cc,
-      nombre,
-      clave_presupuestal
-    )
-  )
-  location ('oficina.csv')
-)
-reject limit unlimited;
-
-
-create table almacen_ext (
-  centro_operaciones_id   number(10,0),
-  tipo_almacen            char(1),
-  almacen_contingencia_id number(10,0)
-)
-organization external (
-  type oracle_loader
-  default directory carga_datos_dir
-  access parameters (
-    records delimited by newline
-    badfile carga_datos_dir:'almacen_ext_bad.log'
-    logfile carga_datos_dir:'almacen_ext.log'
-    fields terminated by ','
-    optionally enclosed by '"'
-    lrtrim
-    missing field values are null
-    (
-      centro_operaciones_id,
-      tipo_almacen,
-      almacen_contingencia_id
-    )
-  )
-  location ('almacen.csv')
-)
-reject limit unlimited;
-
-create table farmacia_ext (
-  centro_operaciones_id   number(10,0),
-  rfc_fiscal              varchar2(13),
-  url_web                 varchar2(128),
-  gerente_id              number(10,0)
-)
-organization external (
-  type oracle_loader
-  default directory carga_datos_dir
-  access parameters (
-    records delimited by newline
-    badfile carga_datos_dir:'farmacia_ext_bad.log'
-    logfile carga_datos_dir:'farmacia_ext.log'
-    fields terminated by ','
-    optionally enclosed by '"'
-    lrtrim
-    missing field values are null
-    (
-      centro_operaciones_id,
-      rfc_fiscal,
-      url_web,
-      gerente_id
-    )
-  )
-  location ('farmacia.csv')
-);
 
 -------------------------------------------------------------------------------
 
@@ -466,16 +346,6 @@ organization external (
  * Haciendo merge de las tablas temporales con las tablas de trabajo
  */
 
-merge into centro_operaciones a using centro_operaciones_ext b on
-  (false)
-when not matched then insert
-  (a.clave, a.direccion, a.latitud, a.longitud, a.telefono, a.es_oficina,
-    a.es_almacen, a.es_farmacia)
-  values
-  (b.clave, b.direccion, b.latitud, b.longitud, b.telefono, b.es_oficina,
-    b.es_almacen, b.es_farmacia);
-
-drop table centro_operaciones_ext;
 merge into empleado a using empleado_ext b on
   (false)
 when not matched then insert
@@ -485,30 +355,6 @@ when not matched then insert
   (b.nombre, b.ap_paterno, b.ap_materno, b.rfc, b.fecha_ing, b.sueldo_mensual,
     b.centro_operaciones_id);
 drop table empleado_ext;
-
-merge into oficina a using oficina_ext b on
-  (false)
-when not matched then insert
-  (a.centro_operaciones_id, a.telefono_cc, a.nombre, a.clave_presupuestal)
-  values
-  (b.centro_operaciones_id, b.telefono_cc, b.nombre, b.clave_presupuestal);
-drop table oficina_ext;
-
-merge into almacen a using almacen_ext b on
-  (false)
-when not matched then insert
-  (a.centro_operaciones_id, a.tipo_almacen, a.almacen_contingencia_id)
-  values
-  (b.centro_operaciones_id, b.tipo_almacen, b.almacen_contingencia_id);
-drop table almacen_ext;
-
-merge into farmacia a using farmacia_ext b on
-  (false)
-when not matched then insert
-  (a.centro_operaciones_id, a.rfc_fiscal, a.url_web, a.gerente_id)
-  values
-  (b.centro_operaciones_id, b.rfc_fiscal, b.url_web, b.gerente_id);
-drop table farmacia_ext;
 
 merge into cliente a using cliente_ext b on
   (false)

@@ -5,13 +5,11 @@ define p_root_dir='/unam/bd/pharmacy-online-bd'
 @&p_root_dir/scripts/s-01-usuarios.sql
 @&p_root_dir/scripts/s-05-secuencias.sql
 @&p_root_dir/scripts/s-02-entidades.sql
+@&p_root_dir/scripts/s-03-tablas-temporales.sql
 @&p_root_dir/scripts/s-04-tablas-externas.sql
 @&p_root_dir/scripts/s-06-indices.sql
 @&p_root_dir/scripts/s-07-sinonimos.sql
-<<<<<<< Updated upstream
-=======
 @&p_root_dir/scripts/s-08-vistas.sql
->>>>>>> Stashed changes
 @&p_root_dir/scripts/s-09-carga-inicial.sql
 
 @&p_root_dir/scripts/s-15-fx-crear-folio-pedido.sql
@@ -24,7 +22,6 @@ define p_root_dir='/unam/bd/pharmacy-online-bd'
 @&p_root_dir/scripts/s-11-tr-calcula-importe-pedido.sql
 
 @&p_root_dir/scripts/s-13-p-ingresa-operacion.sql
--- @&p_root_dir/scripts/s-03-tablas-temporales.sql
 @&p_root_dir/scripts/s-13-p-pedir-desde-carrito.sql
 @&p_root_dir/scripts/s-13-p-carga-archivo.sql
 

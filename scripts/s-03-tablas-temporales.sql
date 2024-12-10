@@ -17,46 +17,7 @@ connect gs_proy_admin/gs_proy_admin@&p_pdb
 prompt Creando tabla temporal
 
 create global temporary table centro_operaciones_desnormalizado(
-  centro_operaciones_id   number(10,0)    default on null centro_operaciones_seq.nextval,
-  clave                   varchar2(6)     not null,
-  direccion               varchar2(128)   not null,
-  latitud                 number(8,6)     not null,
-  longitud                number(9,6)     not null,
-  telefono                number(10)      not null,
-  es_oficina              boolean         not null,
-  es_almacen              boolean         not null,
-  es_farmacia             boolean         not null,
-  telefono_cc             number(10,0)    null,
-  nombre_oficina          varchar2(128)   null,
-  clave_presupuestal      varchar2(256)   null,
-  tipo_almacen            char(1)         null,
-  documento               blob            null,
-  almacen_contingencia_id                 null,
-  rfc_fiscal              varchar2(13)    null,
-  url_web                 varchar2(128)   null,
-  gerente_id                              null,
-  constraint centro_operaciones_desnormalizado_pk primary key(centro_operaciones_id),
-  constraint centro_operaciones_desnormalizado_gerente_id_fk
-    foreign key (gerente_id) references empleado(empleado_id),
-  constraint centro_operaciones_desnormalizado_almacen_contingencia_id_fk
-    foreign key (almacen_contingencia_id) references 
-    centro_operaciones_desnormalizado(almacen_contingencia_id),
-  constraint centro_operaciones_desnormalizado_tipo_chk check (
-    (es_oficina = true and es_almacen = false and es_farmacia = false) or
-    (es_almacen = true or es_farmacia = true)
-  )
-  constraint centro_operaciones_desnormalizado_tipo_almacen_chk check (
-    tipo_almacen in ('M', 'D', 'C')
-  )
-) on commit preserve rows;
-
-/*
- * Creando tabla externa como auxiliar para cargar los datos
- */
-
- prompt Creando tabla externa auxiliar
-
- create table centro_operaciones_desnormalizado_ext (
+  centro_operaciones_id   number(10,0),
   clave                   varchar2(6),
   direccion               varchar2(128),
   latitud                 number(8,6),
@@ -73,7 +34,34 @@ create global temporary table centro_operaciones_desnormalizado(
   almacen_contingencia_id number(10,0),
   rfc_fiscal              varchar2(13),
   url_web                 varchar2(128),
-  gerente_id              number(10,0),
+  gerente_id              number(10,0)
+) on commit preserve rows;
+
+/*
+ * Creando tabla externa como auxiliar para cargar los datos
+ */
+
+ prompt Creando tabla externa auxiliar
+
+ create table centro_operaciones_desnormalizado_ext (
+  centro_operaciones_id   number(10,0),
+  clave                   varchar2(6),
+  direccion               varchar2(128),
+  latitud                 number(8,6),
+  longitud                number(9,6),
+  telefono                number(10),
+  es_oficina              boolean,
+  es_almacen              boolean,
+  es_farmacia             boolean,
+  telefono_cc             number(10,0),
+  nombre_oficina          varchar2(128),
+  clave_presupuestal      varchar2(256),
+  tipo_almacen            char(1),
+  documento               blob,
+  almacen_contingencia_id number(10,0),
+  rfc_fiscal              varchar2(13),
+  url_web                 varchar2(128),
+  gerente_id              number(10,0)
  )
  organization external (
   type oracle_loader
@@ -87,6 +75,7 @@ create global temporary table centro_operaciones_desnormalizado(
     lrtrim
     missing field values are null
     (
+      centro_operaciones_id,
       clave,
       direccion,
       latitud,
@@ -160,5 +149,92 @@ create global temporary table centro_operaciones_desnormalizado(
 
   end;
   /   
+
+ declare 
+
+  mensaje_error varchar2(4000);
+
+ begin 
+
+    insert into oficina a (a.centro_operaciones_id, a.telefono_cc, a.nombre, 
+      a.clave_presupuestal)
+      select  
+        b.centro_operaciones_id, b.telefono_cc, b.nombre, b.clave_presupuestal
+          from
+            centro_operaciones_desnormalizado b
+          where 
+            b.es_oficina = true
+    ;
+
+    commit;
+
+  exception
+     
+     when others then
+        mensaje_error := SQLERRM;
+
+        dbms_output.put_line(
+          mensaje_error || '. Error al insertar datos desde la tabla temporal');
+
+  end;
+  /   
+
+ declare 
+
+  mensaje_error varchar2(4000);
+
+ begin 
+
+    insert into almacen a (a.centro_operaciones_id, a.tipo_almacen, 
+    a.almacen_contingencia_id)
+      select  
+        b.centro_operaciones_id, b.tipo_almacen, b.almacen_contingencia_id
+          from
+            centro_operaciones_desnormalizado b
+          where 
+            b.es_almacen = true
+    ;
+
+    commit;
+
+  exception
+     
+     when others then
+        mensaje_error := SQLERRM;
+
+        dbms_output.put_line(
+          mensaje_error || '. Error al insertar datos desde la tabla temporal');
+
+  end;
+  /   
+
+ declare 
+
+  mensaje_error varchar2(4000);
+
+ begin 
+
+    insert into farmacia a (a.centro_operaciones_id, a.rfc_fiscal, a.url_web, 
+    a.gerente_id)
+      select  
+        b.centro_operaciones_id, b.rfc_fiscal, b.url_web, b.gerente_id
+          from
+            centro_operaciones_desnormalizado b
+          where 
+            b.es_farmacia = true
+    ;
+
+    commit;
+
+  exception
+     
+     when others then
+        mensaje_error := SQLERRM;
+
+        dbms_output.put_line(
+          mensaje_error || '. Error al insertar datos desde la tabla temporal');
+
+  end;
+  /     
 
   

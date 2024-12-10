@@ -159,4 +159,4 @@ connect gs_proy_admin/gs_proy_admin@&p_pdb
  create or replace synonym ped_cancel_p_emp
    for gs_proy_admin.v_num_pedidos_cancelados_de_cada_empleado;
 
- disconnect
+ 
