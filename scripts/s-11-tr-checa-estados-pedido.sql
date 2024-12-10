@@ -65,6 +65,10 @@ begin
         (fecha_status, status_pedido_id, pedido_id)
         values (:new.fecha_status, :new.status_pedido_id, :old.pedido_id);
     end if;
+
+    if var_nuevo_estado in ('DEVUELTO', 'CANCELADO') then
+      actualiza_inventario(:new.pedido_id, var_viejo_estado);
+    end if;
   end case;
 end;
 /
