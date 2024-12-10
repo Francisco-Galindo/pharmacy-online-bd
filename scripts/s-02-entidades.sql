@@ -36,6 +36,7 @@ create table empleado (
   ap_materno              varchar2(128) not null,
   fecha_ing               date          default on null sysdate,
   sueldo_mensual          number(8,2)   not null,
+  sueldo_anual            number(8,2)   generated always as (sueldo_mensual * 12),
   centro_operaciones_id   number(10,0)  not null,
   constraint empleado_pk primary key (empleado_id),
   -- Los valores únicos se checan con índices, en este caso se hará aquí para
@@ -154,7 +155,9 @@ create table cliente (
   email             varchar2(256) not null,
   telefono          number(10,0)  not null,
   direccion_envio   varchar2(256) not null,
-  hash_pass         char(60) not null,
+  hash_pass         char(60)      not null,
+  puntaje_lealtad   number(3,0)   default on null 0,
+  descuento         generated always as (puntaje_lealtad / (100 * 5)),
   constraint cliente_pk primary key(cliente_id),
   -- constraint cliente_rfc_uk unique(rfc),
   -- constraint cliente_curp_uk  unique(curp),
@@ -163,6 +166,9 @@ create table cliente (
   -- Los primeros 10 chars de RFC vienen de la CURP
   constraint cliente_curp_rfc_chk check (
     substr(curp, 1, 10) = substr(rfc, 1, 10)
+  ),
+  constraint cliente_puntaje_lealtad_chk check (
+    puntaje_lealtad between 0 and 100
   )
 );
 
@@ -191,9 +197,9 @@ create table status_pedido (
 create table pedido (
   pedido_id           number(10,0)  default on null pedido_seq.nextval,
   folio               char(13)      not null,
-  fecha               date          not null,
-  fecha_status        date          not null,
-  importe             number(10,2)  not null,
+  fecha               date          default on null sysdate,
+  fecha_status        date          default on null sysdate,
+  importe             number(10,2)  default on null 0,
   cliente_id                        not null,
   responsable_id                    not null,
   status_pedido_id                  not null,
@@ -317,4 +323,18 @@ create table inventario_farmacia (
   constraint inventario_farmacia_presentacion_id_fk
     foreign key (presentacion_id)
     references presentacion(presentacion_id)
+);
+
+create table carrito_compras (
+  carrito_compras_id      number(10,0)  default on null carrito_compras_seq.nextval,
+  unidades                number(4,0)   default on null 0,
+  presentacion_id                       not null,
+  cliente_id                            not null,
+  constraint carrito_compras_pk primary key (carrito_compras_id),
+  constraint carrito_compras_presentacion_id_fk
+    foreign key (presentacion_id)
+    references presentacion(presentacion_id),
+  constraint carrito_compras_cliente_id_fk
+    foreign key (cliente_id)
+    references cliente(cliente_id)
 );
