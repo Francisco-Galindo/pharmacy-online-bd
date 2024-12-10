@@ -87,7 +87,7 @@ from
   join (
     select
       empleado_id,
-      count(*) as num_cancelados empleado e2
+      count(*) as num_cancelados from empleado e2
       join pedido p2 on e2.empleado_id = p2.responsable_id
       join status_pedido sp on sp.status_pedido_id = p2.status_pedido_id
     where
@@ -101,54 +101,73 @@ fetch first
   10 rows only;
 
 /*
- * Cuáles son los tres medicamentos con la mayor proporción de devoluciones
+ * Cuáles son los tres medicamentos con la mayor proporción de devoluciones.
+ * Mostrar el id, descripcion y nombres de los tres medicamentos con la mayor
+ * proporción.
  */
 select
-  mn.nombre,
-  (num_cancelados / num_pedidos) as proporcion_cancelados
+  sub1.medicamento_id,
+  nombre,
+  descripcion,
+  proporcion_cancelados
 from
   (
     select
-      m.medicamento_id,
-      count(*) as num_pedidos
+      medicamento_id,
+      nombre
     from
-      medicamento m
-      join presentacion p on m.medicamento_id = p.medicamento_id
-      join medicamento_pedido mp on p.presentacion_id = mp.presentacion_id
-      join pedido p2 on p2.pedido_id = mp.pedido_id
-    where
-      mp.es_valido = true
-    group by
-      m.medicamento_id
-  ) q1
+      medicamento_nombre
+  ) sub1
   join (
     select
-      m2.medicamento_id,
-      count(*) as num_cancelados
+      m3.medicamento_id,
+      m3.descripcion,
+      (num_cancelados / num_pedidos) as proporcion_cancelados
     from
-      medicamento m2
-      join presentacion p3 on m2.medicamento_id = p3.medicamento_id
-      join medicamento_pedido mp2 on mp2.presentacion_id = p3.presentacion_id
-      join pedido p4 on p4.pedido_id = mp2.pedido_id
-    where
-      mp2.es_valido = true
-      and p4.status_pedido_id = (
+      (
         select
-          status_pedido_id
+          m.medicamento_id,
+          count(*) as num_pedidos
         from
-          status_pedido
+          medicamento m
+          join presentacion p on m.medicamento_id = p.medicamento_id
+          join medicamento_pedido mp on p.presentacion_id = mp.presentacion_id
+          join pedido p2 on p2.pedido_id = mp.pedido_id
         where
-          clave = 'DEVUELTO'
-      )
-    group by
-      m2.medicamento_id
-  ) q2 on q1.medicamento_id = q2.medicamento_id
-  join medicamento m3 on m3.medicamento_id = q1.medicamento_id
-  join medicamento_nombre mn on m3.medicamento_id = mn.medicamento_id
-order by
-  proporcion_cancelados desc
-fetch first
-  3 rows only;
+          mp.es_valido = true
+        group by
+          m.medicamento_id
+      ) q1
+      join (
+        select
+          m2.medicamento_id,
+          count(*) as num_cancelados
+        from
+          medicamento m2
+          join presentacion p3 on m2.medicamento_id = p3.medicamento_id
+          join medicamento_pedido mp2 on mp2.presentacion_id = p3.presentacion_id
+          join pedido p4 on p4.pedido_id = mp2.pedido_id
+        where
+          mp2.es_valido = true
+          and p4.status_pedido_id = (
+            select
+              status_pedido_id
+            from
+              status_pedido
+            where
+              clave = 'DEVUELTO'
+          )
+        group by
+          m2.medicamento_id
+      ) q2 on q1.medicamento_id = q2.medicamento_id
+      join medicamento m3 on m3.medicamento_id = q1.medicamento_id
+      --join medicamento_nombre mn on m3.medicamento_id = mn.medicamento_id
+    order by
+      proporcion_cancelados desc
+    fetch first
+      3 rows only
+  ) sub2 on sub1.medicamento_id = sub2.medicamento_id;
+
 
 /*
  * Seleccionas los 100 clientes cuyos gastos totales en pedidos sea mayor.
