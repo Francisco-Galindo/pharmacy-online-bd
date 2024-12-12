@@ -21,43 +21,6 @@ prompt Insertando datos que se crearon directamente
 
 prompt Creando tablas externas
 
-create table empleado_ext (
-  nombre                  varchar2(128),
-  ap_paterno              varchar2(128),
-  ap_materno              varchar2(128),
-  rfc                     varchar2(13),
-  fecha_ing               date,
-  sueldo_mensual          number(8,2),
-  centro_operaciones_id   number(10,0)
-)
-organization external (
-  type oracle_loader
-  default directory carga_datos_dir
-  access parameters (
-    records delimited by newline
-    badfile carga_datos_dir:'empleado_ext_bad.log'
-    logfile carga_datos_dir:'empleado_ext.log'
-    fields terminated by ','
-    optionally enclosed by '"'
-    lrtrim
-    missing field values are null
-    (
-      nombre,
-      ap_paterno,
-      ap_materno,
-      rfc,
-      fecha_ing date mask "yyyy-mm-dd hh24:mi:ss",
-      sueldo_mensual,
-      centro_operaciones_id
-    )
-  )
-  location ('empleado.csv')
-)
-reject limit unlimited;
-
--------------------------------------------------------------------------------
-
-
 create table cliente_ext (
   nombre            varchar2(128),
   ap_paterno        varchar2(128),
@@ -345,16 +308,6 @@ organization external (
 /*
  * Haciendo merge de las tablas temporales con las tablas de trabajo
  */
-
-merge into empleado a using empleado_ext b on
-  (false)
-when not matched then insert
-  (a.nombre, a.ap_paterno, a.ap_materno, a.rfc, a.fecha_ing, a.sueldo_mensual,
-    a.centro_operaciones_id)
-  values
-  (b.nombre, b.ap_paterno, b.ap_materno, b.rfc, b.fecha_ing, b.sueldo_mensual,
-    b.centro_operaciones_id);
-drop table empleado_ext;
 
 merge into cliente a using cliente_ext b on
   (false)

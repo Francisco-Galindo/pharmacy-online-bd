@@ -2,12 +2,12 @@
 --@Fecha creación: 03/12/2024
 --@Descripción: Script para la creación de tablas temporales
 
-prompt Creando directorio carga_datos_tabla_temporal_dir
+prompt Creando directorio carga_datos_dir
 connect sys/&p_sys_password@&p_pdb as sysdba
 
-create or replace directory carga_datos_tabla_temporal_dir as '/unam/bd/pharmacy-online-bd/scripts/carga-de-datos';
+create or replace directory carga_datos_dir as '/unam/bd/pharmacy-online-bd/scripts/carga-de-datos';
 
-grant read, write on directory carga_datos_tabla_temporal_dir to gs_proy_admin;
+grant read, write on directory carga_datos_dir to gs_proy_admin;
 
 !chmod 777 -R &p_root_dir/scripts/carga-de-datos
 
@@ -27,7 +27,7 @@ create global temporary table centro_operaciones_desnormalizado(
   es_almacen              boolean,
   es_farmacia             boolean,
   telefono_cc             number(10,0),
-  nombre_oficina          varchar2(128),
+  nombre                  varchar2(128),
   clave_presupuestal      varchar2(256),
   tipo_almacen            char(1),
   documento               blob,
@@ -54,7 +54,7 @@ create global temporary table centro_operaciones_desnormalizado(
   es_almacen              boolean,
   es_farmacia             boolean,
   telefono_cc             number(10,0),
-  nombre_oficina          varchar2(128),
+  nombre                  varchar2(128),
   clave_presupuestal      varchar2(256),
   tipo_almacen            char(1),
   documento               blob,
@@ -65,7 +65,7 @@ create global temporary table centro_operaciones_desnormalizado(
  )
  organization external (
   type oracle_loader
-  default directory carga_datos_tabla_temporal_dir
+  default directory carga_datos_dir
   access parameters (
     records delimited by newline
     badfile carga_datos_dir:'centro_operacion_desnormalizado_ext_bad.log'
@@ -85,7 +85,7 @@ create global temporary table centro_operaciones_desnormalizado(
       es_almacen,
       es_farmacia,
       telefono_cc,
-      nombre_oficina,
+      nombre,
       clave_presupuestal,
       tipo_almacen,
       documento,
@@ -95,7 +95,7 @@ create global temporary table centro_operaciones_desnormalizado(
       gerente_id
     )
   )
-  location ('jerarquia_desnormalizada.csv')
+  location ('centro_operaciones_desnormalizado.csv')
  ) 
  reject limit unlimited;
 
@@ -106,13 +106,13 @@ create global temporary table centro_operaciones_desnormalizado(
  merge into centro_operaciones_desnormalizado a using centro_operaciones_desnormalizado_ext b on
   (false)
  when not matched then insert
-  (a.clave, a.direccion, a.latitud, a.longitud, a.telefono, a.es_oficina,
-    a.es_almacen, a.es_farmacia, a.telefono_cc, a.nombre_oficina,
+  (a.centro_operaciones_id,a.clave, a.direccion, a.latitud, a.longitud, a.telefono, a.es_oficina,
+    a.es_almacen, a.es_farmacia, a.telefono_cc, a.nombre,
     a.clave_presupuestal, a.tipo_almacen, a.documento, a.almacen_contingencia_id,
     a.rfc_fiscal, a.url_web, a.gerente_id)
   values
-  (b.clave, b.direccion, b.latitud, b.longitud, b.telefono, b.es_oficina,
-    b.es_almacen, b.es_farmacia, b.telefono_cc, b.nombre_oficina,
+  (b.centro_operaciones_id,b.clave, b.direccion, b.latitud, b.longitud, b.telefono, b.es_oficina,
+    b.es_almacen, b.es_farmacia, b.telefono_cc, b.nombre,
     b.clave_presupuestal, b.tipo_almacen, b.documento, b.almacen_contingencia_id,
     b.rfc_fiscal, b.url_web, b.gerente_id);
  drop table centro_operaciones_desnormalizado_ext;
@@ -123,6 +123,8 @@ create global temporary table centro_operaciones_desnormalizado(
  * según la jerarquía
  */
 
+  prompt Insertando datos en la tabla centro_operaciones
+
  set serveroutput on;
 
  declare 
@@ -131,10 +133,10 @@ create global temporary table centro_operaciones_desnormalizado(
 
  begin 
 
-    insert into centro_operaciones a (a.clave, a.direccion, a.latitud, a.longitud, a.telefono,
-     a.es_oficina, a.es_almacen, a.es_farmacia)
-      select b.clave, b.direccion, b.latitud, b.longitud, b.telefono, b.es_oficina,
-      b.es_almacen, b.es_farmacia
+    insert into centro_operaciones a (a.centro_operaciones_id,a.clave, a.direccion,
+     a.latitud, a.longitud, a.telefono,a.es_oficina, a.es_almacen, a.es_farmacia)
+      select b.centro_operaciones_id,b.clave, b.direccion, b.latitud, b.longitud,
+       b.telefono, b.es_oficina,b.es_almacen, b.es_farmacia
         from centro_operaciones_desnormalizado b;
 
     commit;
@@ -150,20 +152,80 @@ create global temporary table centro_operaciones_desnormalizado(
   end;
   /   
 
+/*
+ * Insertando datos en la tabla empleado.
+ *
+ * Se insertan los datos en aquí ya que la tabla almacen 
+ * tiene un constraint de tipo FK con esta entidad
+ */
+
+  prompt Creando la tabla externa empleado_ext
+
+  create table empleado_ext (
+  nombre                  varchar2(128),
+  ap_paterno              varchar2(128),
+  ap_materno              varchar2(128),
+  rfc                     varchar2(13),
+  fecha_ing               date,
+  sueldo_mensual          number(8,2),
+  centro_operaciones_id   number(10,0)
+  )
+  organization external (
+  type oracle_loader
+  default directory carga_datos_dir
+  access parameters (
+    records delimited by newline
+    badfile carga_datos_dir:'empleado_ext_bad.log'
+    logfile carga_datos_dir:'empleado_ext.log'
+    fields terminated by ','
+    optionally enclosed by '"'
+    lrtrim
+    missing field values are null
+    (
+      nombre,
+      ap_paterno,
+      ap_materno,
+      rfc,
+      fecha_ing date mask "yyyy-mm-dd hh24:mi:ss",
+      sueldo_mensual,
+      centro_operaciones_id
+    )
+  )
+  location ('empleado.csv')
+  )
+  reject limit unlimited;
+
+/*
+ * Haciendo merge de la tabla externa con la permanente
+ */
+
+  merge into empleado a using empleado_ext b on
+  (false)
+    when not matched then insert
+      (a.nombre, a.ap_paterno, a.ap_materno, a.rfc, a.fecha_ing, a.sueldo_mensual,
+      a.centro_operaciones_id)
+    values
+      (b.nombre, b.ap_paterno, b.ap_materno, b.rfc, b.fecha_ing, b.sueldo_mensual,
+      b.centro_operaciones_id);
+
+  drop table empleado_ext;
+
+ prompt Insertando datos en la tabla oficina 
+
  declare 
 
   mensaje_error varchar2(4000);
 
  begin 
 
-    insert into oficina a (a.centro_operaciones_id, a.telefono_cc, a.nombre, 
-      a.clave_presupuestal)
+    insert into oficina a (a.centro_operaciones_id, a.telefono_cc, a.nombre,
+    a.clave_presupuestal)
       select  
         b.centro_operaciones_id, b.telefono_cc, b.nombre, b.clave_presupuestal
           from
             centro_operaciones_desnormalizado b
           where 
-            b.es_oficina = true
+            b.es_oficina = 1
     ;
 
     commit;
@@ -178,6 +240,8 @@ create global temporary table centro_operaciones_desnormalizado(
 
   end;
   /   
+
+  prompt Insertando datos en la tabla almacen
 
  declare 
 
@@ -192,7 +256,7 @@ create global temporary table centro_operaciones_desnormalizado(
           from
             centro_operaciones_desnormalizado b
           where 
-            b.es_almacen = true
+            b.es_almacen = 1
     ;
 
     commit;
@@ -208,6 +272,8 @@ create global temporary table centro_operaciones_desnormalizado(
   end;
   /   
 
+  prompt Insertando datos en la tabla farmacia
+
  declare 
 
   mensaje_error varchar2(4000);
@@ -221,7 +287,7 @@ create global temporary table centro_operaciones_desnormalizado(
           from
             centro_operaciones_desnormalizado b
           where 
-            b.es_farmacia = true
+            b.es_farmacia = 1
     ;
 
     commit;

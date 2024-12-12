@@ -3,10 +3,7 @@
 --@Descripción: Script para la creación de secuencias
 
 /*
- * Los números de inicio para las secuencias existen para apartar espacios para
- * que las pruebas de PL/SQL funcionen correctamente.
- *
- * Todas las tablas que tienen una PK artificial que además vayan a tener
+ * Todas las tablas que tienen una PK artificial, que además vayan a tener
  * registros creados de manera dinámica (que no siempre sean creados
  * directamente por el administrador) necesitarán una secuencia, para no tener
  * que elegirla al momento de insertar nuevos registros.
@@ -25,6 +22,7 @@ create sequence empleado_seq
  * No se espera que existan demasiados centros de operaciones (menos de 100,
  * por ejemplo), no es necesario un caché
  */
+ 
 create sequence centro_operaciones_seq
   start with 1
   increment by 1

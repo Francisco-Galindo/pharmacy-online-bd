@@ -44,6 +44,8 @@ connect gs_proy_admin/gs_proy_admin@&p_pdb
  grant select on v_tarjeta_credito_sin_datos_sensibles to gs_proy_invitado;
 
 /*
+ * Vistas  empleadas para las consultas. 
+ *
  * Vista que muestra el identificador de los clientes con tarjetas expiradas
  */
 
@@ -171,4 +173,3 @@ connect gs_proy_admin/gs_proy_admin@&p_pdb
             m2.medicamento_id
    ;  
 
-disconnect

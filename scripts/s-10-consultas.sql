@@ -249,14 +249,8 @@ from
 select
   centro_operaciones_id
 from
-  centro_operaciones_desnomormalizado
+  centro_operaciones_desnormalizado
 where
   es_almacen = true
   and es_farmacia = true;
 
-
-/*
- * Consultas faltantes:
- *   - consulta con tabla temporal (supertipo desnormalizada)
- *   - consulta que involucre una tabla externa
- */
